@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedAdapt · USMLE Step 1 & Step 2 CK — Adaptive Engine</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg-base:#0a0e27; --bg-surface:#0f1535;
+  --bg-card:rgba(255,255,255,.04); --bg-card-hover:rgba(255,255,255,.07);
+  --glass-bg:rgba(255,255,255,.05); --glass-border:rgba(255,255,255,.09);
+  --text-primary:#e8eaf6; --text-secondary:rgba(232,234,246,.65); --text-tertiary:rgba(232,234,246,.4);
+  --text-accent:#a5b4fc;
+  --grad-primary:linear-gradient(135deg,#667eea,#764ba2);
+  --grad-secondary:linear-gradient(135deg,#4facfe,#00f2fe);
+  --success:#43e97b; --success-soft:rgba(67,233,123,.15);
+  --warning:#fbbf24; --warning-soft:rgba(251,191,36,.15);
+  --danger:#f5576c; --danger-soft:rgba(245,87,108,.15);
+  --info:#a18cd1; --accent:#4facfe;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:22px; --r-full:9999px;
+  --ease:cubic-bezier(.4,0,.2,1); --bounce:cubic-bezier(.34,1.56,.64,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
+  background:radial-gradient(1200px 800px at 15% -10%,#1a2050 0%,transparent 55%),
+             radial-gradient(1000px 700px at 100% 0%,#241a4a 0%,transparent 50%),
+             var(--bg-base);
+  color:var(--text-primary); min-height:100vh; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 22px 80px}
+.hidden{display:none!important}
+button{font-family:inherit;cursor:pointer;border:none}
+.btn{
+  padding:13px 26px;border-radius:var(--r-full);font-weight:700;font-size:15px;
+  background:var(--grad-primary);color:#fff;transition:.25s var(--ease);
+  box-shadow:0 8px 24px rgba(102,126,234,.32);letter-spacing:.2px;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(102,126,234,.45)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.ghost{background:var(--glass-bg);border:1px solid var(--glass-border);box-shadow:none}
+.btn.ghost:hover{background:var(--bg-card-hover)}
+.btn.sm{padding:9px 18px;font-size:13px}
+.card{
+  background:var(--glass-bg);border:1px solid var(--glass-border);
+  border-radius:var(--r-xl);padding:26px;backdrop-filter:blur(20px);
+  box-shadow:0 8px 32px rgba(0,0,0,.28);
+}
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.brand .logo{
+  width:52px;height:52px;border-radius:16px;background:var(--grad-primary);
+  display:grid;place-items:center;font-size:26px;box-shadow:0 8px 22px rgba(102,126,234,.4);
+}
+.brand h1{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.brand .grad{background:var(--grad-secondary);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--text-secondary);font-size:14px}
+.pill{display:inline-block;padding:4px 12px;border-radius:var(--r-full);font-size:12px;font-weight:700}
+.pill.step1{background:rgba(161,140,209,.18);color:#c4b5fd}
+.pill.step2{background:rgba(79,172,254,.16);color:#7dd3fc}
+h2.sec{font-size:20px;font-weight:800;margin-bottom:4px}
+.muted{color:var(--text-secondary)}
+.tiny{font-size:12px;color:var(--text-tertiary)}
+label.fld{display:block;font-size:13px;font-weight:600;color:var(--text-secondary);margin:16px 0 7px}
+input.f,select.f{
+  width:100%;padding:12px 14px;border-radius:var(--r-md);background:rgba(255,255,255,.05);
+  border:1px solid var(--glass-border);color:var(--text-primary);font-size:15px;outline:none;transition:.2s;
+}
+input.f:focus,select.f:focus{border-color:var(--accent);background:rgba(79,172,254,.07)}
+select.f option{background:#141a3a}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.goalcards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.goalcard{
+  padding:18px;border-radius:var(--r-lg);border:2px solid var(--glass-border);
+  background:var(--bg-card);cursor:pointer;transition:.2s var(--ease);
+}
+.goalcard:hover{background:var(--bg-card-hover)}
+.goalcard.on{border-color:var(--accent);background:rgba(79,172,254,.1);box-shadow:0 0 0 3px rgba(79,172,254,.12)}
+.goalcard .t{font-weight:800;font-size:16px;margin-bottom:4px}
+
+/* progress bar */
+.pbar{height:8px;border-radius:var(--r-full);background:rgba(255,255,255,.08);overflow:hidden}
+.pbar>i{display:block;height:100%;background:var(--grad-secondary);border-radius:var(--r-full);transition:width .4s var(--ease)}
+
+/* question */
+.qmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.qdomain{font-weight:700;font-size:13px;color:var(--text-accent)}
+.chip{padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:700;background:rgba(255,255,255,.07);color:var(--text-secondary)}
+.vignette{font-size:16px;line-height:1.65;margin:6px 0 18px}
+.stem{font-weight:700;margin-bottom:14px}
+.opt{
+  display:flex;gap:13px;align-items:flex-start;padding:14px 16px;border-radius:var(--r-md);
+  border:1.5px solid var(--glass-border);background:var(--bg-card);margin-bottom:10px;
+  cursor:pointer;transition:.16s var(--ease);
+}
+.opt:hover{background:var(--bg-card-hover);border-color:rgba(255,255,255,.2)}
+.opt .k{
+  flex:0 0 26px;height:26px;border-radius:8px;background:rgba(255,255,255,.08);
+  display:grid;place-items:center;font-weight:800;font-size:13px;color:var(--text-secondary);
+}
+.opt.sel{border-color:var(--accent);background:rgba(79,172,254,.1)}
+.opt.sel .k{background:var(--accent);color:#001}
+.opt.correct{border-color:var(--success);background:var(--success-soft)}
+.opt.correct .k{background:var(--success);color:#003}
+.opt.wrong{border-color:var(--danger);background:var(--danger-soft)}
+.opt.wrong .k{background:var(--danger);color:#fff}
+.opt.disabled{cursor:default;pointer-events:none}
+.explain{
+  margin-top:6px;padding:15px 17px;border-radius:var(--r-md);
+  background:rgba(67,233,123,.07);border:1px solid rgba(67,233,123,.22);font-size:14px;line-height:1.6;
+}
+.explain.bad{background:rgba(245,87,108,.07);border-color:rgba(245,87,108,.25)}
+.explain b{color:var(--text-primary)}
+.link-note{margin-top:9px;font-size:12.5px;color:var(--text-accent)}
+.navrow{display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:12px}
+
+/* results */
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
+.stat{padding:18px;border-radius:var(--r-lg);background:var(--bg-card);border:1px solid var(--glass-border);text-align:center}
+.stat .n{font-size:30px;font-weight:800;line-height:1.1}
+.stat .l{font-size:12px;color:var(--text-secondary);margin-top:4px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.domlist{display:flex;flex-direction:column;gap:10px}
+.domrow{display:flex;align-items:center;gap:12px}
+.domrow .ico{font-size:20px;width:26px;text-align:center}
+.domrow .nm{flex:1;font-size:13.5px;font-weight:600}
+.domrow .barwrap{flex:1.4;height:9px;border-radius:var(--r-full);background:rgba(255,255,255,.07);overflow:hidden}
+.domrow .barwrap>i{display:block;height:100%;border-radius:var(--r-full)}
+.domrow .pct{width:44px;text-align:right;font-size:12.5px;font-weight:800}
+.status-tag{font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:var(--r-full);white-space:nowrap}
+.st-crit{background:var(--danger-soft);color:#ff8fa0}
+.st-weak{background:var(--warning-soft);color:#fcd34d}
+.st-pass{background:rgba(79,172,254,.15);color:#7dd3fc}
+.st-mast{background:var(--success-soft);color:#6ee7a0}
+
+/* dashboard */
+.dashgrid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:start}
+.plan-item{
+  display:flex;gap:14px;padding:15px;border-radius:var(--r-md);background:var(--bg-card);
+  border:1px solid var(--glass-border);margin-bottom:11px;align-items:flex-start;
+}
+.plan-item .day{
+  flex:0 0 54px;height:54px;border-radius:12px;background:var(--grad-primary);
+  display:grid;place-items:center;text-align:center;font-weight:800;font-size:11px;line-height:1.1;color:#fff;
+}
+.plan-item .body{flex:1}
+.plan-item .body .h{font-weight:700;font-size:14.5px;margin-bottom:3px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--r-full);
+  background:var(--glass-bg);border:1px solid var(--glass-border);font-size:12.5px;font-weight:700;margin:5px 6px 0 0}
+.badge.locked{opacity:.4}
+.streakbig{display:flex;align-items:center;gap:14px}
+.streakbig .fire{font-size:40px}
+.streakbig .n{font-size:34px;font-weight:800}
+.toast{
+  position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);
+  background:#141a3a;border:1px solid var(--glass-border);padding:14px 22px;border-radius:var(--r-full);
+  box-shadow:0 12px 40px rgba(0,0,0,.5);opacity:0;transition:.35s var(--bounce);z-index:99;font-weight:600;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.loader{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fade{animation:fade .45s var(--ease)}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.divider{height:1px;background:var(--glass-border);margin:22px 0}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-secondary);margin-top:10px}
+.legend span{display:flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%}
+@media(max-width:820px){
+  .two,.dashgrid,.grid2,.goalcards,.statgrid{grid-template-columns:1fr}
+  .statgrid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="logo">🧠</div>
+    <div>
+      <h1>Med<span class="grad">Adapt</span></h1>
+      <div class="sub">Adaptive Engine · USMLE Step 1 &amp; Step 2 CK Edition</div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: ONBOARDING ============ -->
+  <div id="scr-onboard" class="fade" style="margin-top:22px"></div>
+  <!-- ============ SCREEN: TEST ============ -->
+  <div id="scr-test" class="hidden"></div>
+  <!-- ============ SCREEN: RESULTS ============ -->
+  <div id="scr-results" class="hidden"></div>
+  <!-- ============ SCREEN: DASHBOARD ============ -->
+  <div id="scr-dash" class="hidden"></div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* =========================================================================
+   MedAdapt — Standalone Adaptive Engine (offline, no server/API key)
+   Flow: Onboarding -> Diagnostic Test (40Q) -> Results+Radar+Gaps ->
+         Adaptive Dashboard (SM-2 plan, targeted daily test, streak/badges)
+   ========================================================================= */
+
+/* ---------- 13 DOMAINS (7 clinical Step2CK + 6 basic Step1) ---------- */
+const DOMAINS = {
+  internal:     {name:'Nội khoa', en:'Internal Medicine', icon:'🫀', step:2, link:'pharmacology'},
+  surgery:      {name:'Ngoại khoa & Chấn thương', en:'Surgery', icon:'🔪', step:2, link:'pathology'},
+  obgyn:        {name:'Sản phụ khoa', en:'OB/GYN', icon:'🤰', step:2, link:'pharmacology'},
+  pediatrics:   {name:'Nhi khoa', en:'Pediatrics', icon:'👶', step:2, link:'microbiology'},
+  emergency:    {name:'Cấp cứu & Hồi sức', en:'Emergency', icon:'🚑', step:2, link:'physiology'},
+  psychneuro:   {name:'Tâm thần & Thần kinh', en:'Psych & Neuro', icon:'🧠', step:2, link:'pharmacology'},
+  labdx:        {name:'Cận lâm sàng & CĐHA', en:'Labs & Imaging', icon:'🩺', step:2, link:'pathology'},
+  pathology:    {name:'GPB & Sinh lý bệnh', en:'Pathology', icon:'🔬', step:1, link:'physiology'},
+  pharmacology: {name:'Dược lý lâm sàng', en:'Pharmacology', icon:'💊', step:1, link:'physiology'},
+  physiology:   {name:'Sinh lý học', en:'Physiology', icon:'⚡', step:1, link:'pathology'},
+  microbiology: {name:'Vi sinh & Miễn dịch', en:'Micro & Immuno', icon:'🦠', step:1, link:'pathology'},
+  biochemistry: {name:'Hóa sinh & Di truyền', en:'Biochem & Genetics', icon:'🧬', step:1, link:'pathology'},
+  community:    {name:'YHDP, Thống kê & Y đức', en:'Prev/Biostats/Ethics', icon:'🌍', step:1, link:'physiology'},
+};
+const DOMAIN_KEYS = Object.keys(DOMAINS);
+
+/* ---------- QUESTION BANK (40 clinical vignettes) ----------
+   Each: domain, step, diff(1-5), bloom, vignette, stem, options[5], correct(idx),
+   exp (explanation), link (basic-science domain activated on miss) */
+const BANK = [
+/* ---- INTERNAL MEDICINE ---- */
+{domain:'internal',step:2,diff:3,bloom:'apply',
+ vignette:'Nam 68 tuổi, khó thở khi gắng sức, khó thở khi nằm và phù hai chân tăng dần 3 tháng. Khám: ran ẩm hai đáy phổi, tĩnh mạch cổ nổi, tiếng T3. Siêu âm tim EF 28%.',
+ stem:'Thuốc nào giúp GIẢM TỬ VONG và nên khởi đầu cho bệnh nhân này?',
+ options:['Furosemide đơn thuần','Lisinopril (ức chế men chuyển)','Digoxin','Amlodipine','Diltiazem'],
+ correct:1,
+ exp:'Suy tim EF giảm (HFrEF): ức chế men chuyển (ACEi) và chẹn beta là nền tảng giúp giảm tử vong. Lợi tiểu chỉ giảm triệu chứng sung huyết, không cải thiện sống còn.',
+ link:'pharmacology'},
+{domain:'internal',step:2,diff:2,bloom:'apply',
+ vignette:'Nữ 55 tuổi, BMI 32, không bệnh tim/thận. Xét nghiệm HbA1c 8.2%, đường huyết đói 168 mg/dL. Chẩn đoán đái tháo đường type 2 mới.',
+ stem:'Thuốc hàng đầu (first-line) là gì?',
+ options:['Insulin nền','Glipizide','Metformin','Pioglitazone','Empagliflozin'],
+ correct:2,
+ exp:'Metformin là first-line cho ĐTĐ type 2: giảm sản xuất glucose ở gan, không gây hạ đường huyết, trung tính cân nặng, giảm biến cố tim mạch.',
+ link:'pharmacology'},
+{domain:'internal',step:2,diff:3,bloom:'analyze',
+ vignette:'Nam 60 tuổi hút thuốc 40 gói-năm, ho khạc đờm mạn ≥3 tháng/năm trong 2 năm liên tiếp, khó thở gắng sức tiến triển. FEV1/FVC 0.62 sau giãn phế quản.',
+ stem:'Can thiệp nào GIẢM TỬ VONG nhiều nhất ở bệnh nhân COPD này?',
+ options:['Cai thuốc lá','Corticoid hít liều cao','Kháng sinh dự phòng','Theophylline','Bổ sung vitamin D'],
+ correct:0,
+ exp:'Ở COPD, cai thuốc lá và oxy dài hạn (khi giảm oxy máu) là hai biện pháp duy nhất chứng minh giảm tử vong. Thuốc giãn phế quản/ICS chủ yếu cải thiện triệu chứng.',
+ link:'physiology'},
+
+/* ---- SURGERY ---- */
+{domain:'surgery',step:2,diff:2,bloom:'apply',
+ vignette:'Nam 22 tuổi, đau quanh rốn di chuyển xuống hố chậu phải sau 12 giờ, sốt nhẹ 38°C, buồn nôn. Khám: phản ứng dội tại điểm McBurney. Bạch cầu 14.000.',
+ stem:'Xử trí phù hợp nhất?',
+ options:['Kháng sinh và theo dõi ngoại trú','Cắt ruột thừa','Nội soi đại tràng cấp','Chụp lưu thông ruột','Truyền dịch rồi xuất viện'],
+ correct:1,
+ exp:'Viêm ruột thừa cấp điển hình: cắt ruột thừa là điều trị chuẩn. Chậm trễ làm tăng nguy cơ vỡ và viêm phúc mạc.',
+ link:'pathology'},
+{domain:'surgery',step:2,diff:3,bloom:'apply',
+ vignette:'Nam 71 tuổi hút thuốc, khám định kỳ phát hiện khối đập theo mạch ở bụng. CT: phình động mạch chủ bụng dưới thận đường kính 5.8 cm, không triệu chứng.',
+ stem:'Xử trí đúng nhất?',
+ options:['Theo dõi siêu âm mỗi 6 tháng','Sửa chữa phình (mổ mở hoặc EVAR) theo chương trình','Chỉ dùng chẹn beta','Mổ cấp cứu ngay','Chống đông kháng vitamin K'],
+ correct:1,
+ exp:'Phình ĐMC bụng ≥5.5 cm (hoặc lớn nhanh >0.5cm/6 tháng, hoặc có triệu chứng) có chỉ định sửa chữa theo chương trình vì nguy cơ vỡ vượt nguy cơ mổ.',
+ link:'pathology'},
+{domain:'surgery',step:2,diff:2,bloom:'understand',
+ vignette:'Nữ 54 tuổi sốt 38.3°C vào ngày hậu phẫu thứ 1 sau mổ mở cắt túi mật. Khám phổi giảm thông khí đáy, không đau chân, vết mổ khô.',
+ stem:'Nguyên nhân sốt nhiều khả năng nhất?',
+ options:['Nhiễm trùng vết mổ','Xẹp phổi','Huyết khối tĩnh mạch sâu','Nhiễm trùng tiểu do sonde','Áp xe tồn dư'],
+ correct:1,
+ exp:'Sốt ngày hậu phẫu 1 (sớm) thường do xẹp phổi ("Wind"). Quy tắc 5W theo thời gian: Wind→Water→Walking→Wound→Wonder drugs.',
+ link:'physiology'},
+
+/* ---- OB/GYN ---- */
+{domain:'obgyn',step:2,diff:3,bloom:'apply',
+ vignette:'Sản phụ 28 tuổi thai 33 tuần, huyết áp 162/112 mmHg hai lần cách 4 giờ, protein niệu (+++), đau đầu và nhìn mờ.',
+ stem:'Ngoài kiểm soát huyết áp, thuốc nào bắt buộc dùng để DỰ PHÒNG CO GIẬT?',
+ options:['Diazepam','Magnesium sulfate','Phenytoin','Labetalol','Nifedipine'],
+ correct:1,
+ exp:'Tiền sản giật nặng: magnesium sulfate là thuốc chọn để dự phòng và điều trị sản giật (co giật), vượt trội phenytoin/diazepam.',
+ link:'pharmacology'},
+{domain:'obgyn',step:2,diff:3,bloom:'apply',
+ vignette:'Nữ 26 tuổi trễ kinh 6 tuần, đau hố chậu phải, β-hCG 1.800 mIU/mL. Siêu âm đầu dò không thấy túi thai trong buồng tử cung, khối cạnh phần phụ 2 cm, huyết động ổn định, không vỡ.',
+ stem:'Điều trị thích hợp nhất?',
+ options:['Theo dõi hCG mỗi 48 giờ tại nhà','Methotrexate','Cắt tử cung','Nạo buồng tử cung','Oxytocin'],
+ correct:1,
+ exp:'Thai ngoài tử cung chưa vỡ, huyết động ổn, hCG không quá cao, khối nhỏ: methotrexate (kháng chuyển hóa folate) là lựa chọn nội khoa.',
+ link:'pharmacology'},
+{domain:'obgyn',step:2,diff:2,bloom:'analyze',
+ vignette:'Nữ 24 tuổi kinh thưa, rậm lông, mụn trứng cá, BMI 30, hiếm muộn nguyên phát. Xét nghiệm tỷ lệ LH:FSH tăng, siêu âm buồng trứng đa nang.',
+ stem:'Thuốc kích thích phóng noãn hàng đầu để điều trị hiếm muộn do PCOS?',
+ options:['Letrozole','Estrogen liều cao','Bromocriptine','Metformin đơn thuần','Progesterone'],
+ correct:0,
+ exp:'PCOS gây rối loạn phóng noãn. Letrozole (ức chế aromatase) hiện là first-line kích thích phóng noãn, hiệu quả hơn clomiphene về tỷ lệ sinh sống.',
+ link:'physiology'},
+
+/* ---- PEDIATRICS ---- */
+{domain:'pediatrics',step:2,diff:2,bloom:'apply',
+ vignette:'Bé trai 2 tuổi ho "ông ổng" như chó sủa, khàn tiếng, thở rít thì hít vào, sốt nhẹ về đêm. X-quang cổ: dấu hiệu "steeple" (tháp chuông).',
+ stem:'Điều trị phù hợp nhất cho trường hợp này?',
+ options:['Kháng sinh amoxicillin','Dexamethasone','Đặt nội khí quản ngay','Kháng histamine','Salbutamol khí dung'],
+ correct:1,
+ exp:'Viêm thanh khí phế quản (croup, thường do parainfluenza): corticoid (dexamethasone) cho mọi mức độ; epinephrine khí dung khi rít lúc nghỉ. Kháng sinh không có vai trò.',
+ link:'microbiology'},
+{domain:'pediatrics',step:2,diff:3,bloom:'analyze',
+ vignette:'Bé gái 4 tuổi sốt cao ≥5 ngày, viêm kết mạc hai bên không mủ, môi nứt đỏ lưỡi dâu, hồng ban thân mình, hạch cổ, phù mu bàn tay bong da đầu ngón.',
+ stem:'Điều trị nào giúp phòng biến chứng nặng nhất của bệnh này?',
+ options:['Kháng sinh tĩnh mạch','IVIG + aspirin','Corticoid đơn thuần','Aciclovir','Chỉ hạ sốt'],
+ correct:1,
+ exp:'Bệnh Kawasaki (viêm mạch): IVIG + aspirin làm giảm nguy cơ phình động mạch vành — biến chứng nguy hiểm nhất. Cần siêu âm tim theo dõi.',
+ link:'pathology'},
+{domain:'pediatrics',step:1,diff:3,bloom:'understand',
+ vignette:'Trẻ sơ sinh không được tầm soát, 6 tháng tuổi chậm phát triển tâm thần vận động, da sáng màu, mùi "mốc" đặc trưng ở nước tiểu, co giật.',
+ stem:'Xử trí nền tảng của rối loạn chuyển hóa này?',
+ options:['Bổ sung phenylalanine','Chế độ ăn hạn chế phenylalanine','Truyền glucose liên tục','Ghép gan cấp','Bổ sung biotin'],
+ correct:1,
+ exp:'Phenylketon niệu (PKU): thiếu phenylalanine hydroxylase → tích tụ phenylalanine gây độc thần kinh. Điều trị: chế độ ăn hạn chế phenylalanine, bổ sung tyrosine.',
+ link:'biochemistry'},
+
+/* ---- EMERGENCY ---- */
+{domain:'emergency',step:2,diff:2,bloom:'apply',
+ vignette:'Nữ 30 tuổi sau khi ăn đậu phộng xuất hiện nổi mề đay lan tỏa, khò khè, phù môi, huyết áp 82/50 mmHg trong vài phút.',
+ stem:'Xử trí ĐẦU TIÊN và quan trọng nhất?',
+ options:['Diphenhydramine tĩnh mạch','Epinephrine tiêm bắp','Hydrocortisone tĩnh mạch','Salbutamol khí dung','Truyền dịch đơn thuần'],
+ correct:1,
+ exp:'Sốc phản vệ: epinephrine tiêm bắp (mặt trước ngoài đùi) là điều trị đầu tay, cần cho ngay. Kháng histamine/corticoid chỉ là hỗ trợ thứ phát.',
+ link:'pharmacology'},
+{domain:'emergency',step:2,diff:3,bloom:'apply',
+ vignette:'Nam 58 tuổi đau ngực sau xương ức dữ dội 40 phút, vã mồ hôi, lan tay trái. ECG: ST chênh lên ở V2–V4. Đến viện có phòng thông tim, thời gian cửa–bóng dự kiến 60 phút.',
+ stem:'Biện pháp tái tưới máu tối ưu?',
+ options:['Tiêu sợi huyết','Can thiệp mạch vành qua da (PCI) thì đầu','Chỉ dùng heparin','Chờ men tim rồi quyết định','Chẹn beta tĩnh mạch liều cao'],
+ correct:1,
+ exp:'STEMI: PCI thì đầu là tái tưới máu tối ưu nếu thực hiện được trong ≤90 phút. Kèm aspirin + thuốc ức chế P2Y12 và chống đông.',
+ link:'physiology'},
+{domain:'emergency',step:2,diff:3,bloom:'apply',
+ vignette:'Nam 25 tuổi chấn thương ngực do tai nạn, khó thở nặng, huyết áp tụt 80/40, tĩnh mạch cổ nổi, khí quản lệch trái, mất rì rào phế nang phổi phải, gõ vang.',
+ stem:'Xử trí cấp cứu ngay lập tức?',
+ options:['Chụp X-quang ngực rồi xử trí','Chọc kim giải áp khoang màng phổi phải','Đặt nội khí quản','Truyền dịch nhanh đơn thuần','Siêu âm tim tại giường'],
+ correct:1,
+ exp:'Tràn khí màng phổi áp lực là chẩn đoán lâm sàng cấp cứu — không chờ X-quang. Chọc kim giải áp (khe liên sườn 2 đường giữa đòn hoặc 4–5 đường nách trước) ngay, sau đó dẫn lưu.',
+ link:'physiology'},
+
+/* ---- PSYCH & NEURO ---- */
+{domain:'psychneuro',step:2,diff:2,bloom:'apply',
+ vignette:'Nữ 34 tuổi khí sắc trầm ≥6 tuần, mất hứng thú, mất ngủ, giảm cân, khó tập trung, cảm giác vô dụng, không ý tưởng tự sát. Không bệnh nội khoa.',
+ stem:'Điều trị dược lý hàng đầu?',
+ options:['Thuốc chống loạn thần','SSRI (ví dụ sertraline)','Benzodiazepine kéo dài','Lithium','Chống trầm cảm ba vòng liều cao'],
+ correct:1,
+ exp:'Trầm cảm chủ yếu: SSRI là first-line nhờ hiệu quả và an toàn. Kết hợp tâm lý trị liệu (CBT) tối ưu kết quả.',
+ link:'pharmacology'},
+{domain:'psychneuro',step:2,diff:3,bloom:'apply',
+ vignette:'Nam 66 tuổi đột ngột yếu nửa người phải và nói khó, khởi phát 90 phút trước. CT sọ không xuất huyết. Huyết áp 168/90, glucose bình thường, không chống chỉ định.',
+ stem:'Điều trị đặc hiệu phù hợp nhất?',
+ options:['Alteplase (tPA) tĩnh mạch','Aspirin liều cao đơn thuần','Warfarin ngay','Nifedipine ngậm dưới lưỡi','Mannitol'],
+ correct:0,
+ exp:'Đột quỵ thiếu máu não trong cửa sổ ≤4.5 giờ, CT loại trừ xuất huyết, không chống chỉ định: tiêu sợi huyết tĩnh mạch (alteplase). Cân nhắc lấy huyết khối cơ học nếu tắc mạch lớn.',
+ link:'pharmacology'},
+{domain:'psychneuro',step:1,diff:2,bloom:'understand',
+ vignette:'Nam 70 tuổi run khi nghỉ kiểu "vê thuốc", cử động chậm, cứng kiểu bánh xe răng cưa, dáng đi bước nhỏ. Triệu chứng đáp ứng tốt khi thử levodopa.',
+ stem:'Cơ chế bệnh sinh cốt lõi là gì?',
+ options:['Thoái hóa neuron dopamine ở chất đen','Mất neuron cholinergic ở nhân Meynert','Mảng amyloid vỏ não','Thiếu GABA ở thể vân','Mất myelin quanh não thất'],
+ correct:0,
+ exp:'Parkinson: thoái hóa neuron dopaminergic ở phần đặc chất đen (substantia nigra pars compacta) → thiếu dopamine ở thể vân. Levodopa-carbidopa cải thiện triệu chứng.',
+ link:'physiology'},
+
+/* ---- LABS & IMAGING (Cận lâm sàng) ---- */
+{domain:'labdx',step:2,diff:2,bloom:'analyze',
+ vignette:'Nữ 42 tuổi mệt mỏi. Công thức máu: Hb 9.2 g/dL, MCV 72 fL. Sắt huyết thanh thấp, ferritin thấp, TIBC (khả năng gắn sắt toàn phần) tăng.',
+ stem:'Chẩn đoán phù hợp nhất với bộ xét nghiệm này?',
+ options:['Thiếu máu do bệnh mạn','Thiếu máu thiếu sắt','Thalassemia thể nhẹ','Thiếu máu nguyên hồng cầu khổng lồ','Thiếu máu tan máu'],
+ correct:1,
+ exp:'Thiếu máu hồng cầu nhỏ nhược sắc + ferritin thấp + TIBC tăng = thiếu sắt. Ngược lại, bệnh mạn có ferritin bình thường/tăng và TIBC giảm.',
+ link:'pathology'},
+{domain:'labdx',step:1,diff:3,bloom:'analyze',
+ vignette:'Nam 19 tuổi ĐTĐ type 1 buồn nôn, thở nhanh sâu. Khí máu: pH 7.18, HCO3⁻ 8 mmol/L. Na 138, Cl 100, glucose 480 mg/dL, ceton máu (+).',
+ stem:'Rối loạn toan-kiềm chính là gì?',
+ options:['Toan chuyển hóa tăng khoảng trống anion','Toan chuyển hóa khoảng trống bình thường','Kiềm chuyển hóa','Toan hô hấp','Kiềm hô hấp'],
+ correct:0,
+ exp:'Anion gap = 138 − (100+8) = 30 (tăng). Nhiễm toan ceton do ĐTĐ là toan chuyển hóa tăng khoảng trống anion (do ceton). Thở Kussmaul là bù trừ hô hấp.',
+ link:'physiology'},
+{domain:'labdx',step:1,diff:2,bloom:'understand',
+ vignette:'Nam 65 tuổi sốt, ho đờm màu gỉ sắt, đau ngực kiểu màng phổi. X-quang: đông đặc thùy dưới phải. Nhuộm Gram đờm: song cầu Gram dương.',
+ stem:'Tác nhân gây bệnh nhiều khả năng nhất?',
+ options:['Mycoplasma pneumoniae','Streptococcus pneumoniae','Pseudomonas aeruginosa','Legionella pneumophila','Klebsiella pneumoniae'],
+ correct:1,
+ exp:'Viêm phổi thùy điển hình, đờm gỉ sắt, song cầu Gram dương = Streptococcus pneumoniae, tác nhân phổ biến nhất của viêm phổi cộng đồng.',
+ link:'microbiology'},
+
+/* ---- PATHOLOGY ---- */
+{domain:'pathology',step:1,diff:3,bloom:'analyze',
+ vignette:'Chọc dịch màng phổi: protein dịch/huyết thanh 0.7; LDH dịch/huyết thanh 0.8; LDH dịch cao hơn 2/3 giới hạn trên bình thường của huyết thanh.',
+ stem:'Theo tiêu chuẩn Light, dịch này là gì?',
+ options:['Dịch thấm (transudate)','Dịch tiết (exudate)','Dưỡng chấp','Máu toàn phần','Không kết luận được'],
+ correct:1,
+ exp:'Chỉ cần thỏa 1 tiêu chuẩn Light là dịch tiết: protein dịch/HT >0.5, LDH dịch/HT >0.6, hoặc LDH dịch >2/3 ULN. Dịch tiết gợi ý viêm/nhiễm/ác tính.',
+ link:'physiology'},
+{domain:'pathology',step:1,diff:2,bloom:'understand',
+ vignette:'Trên tiêu bản mô học, một số tế bào co nhỏ, nhân cô đặc rồi vỡ thành mảnh, tạo các thể nhỏ được đại thực bào dọn sạch, KHÔNG kèm phản ứng viêm xung quanh.',
+ stem:'Quá trình chết tế bào nào được mô tả?',
+ options:['Hoại tử đông','Apoptosis (chết theo chương trình)','Hoại tử hóa lỏng','Hoại tử bã đậu','Hoại tử mỡ'],
+ correct:1,
+ exp:'Apoptosis: tế bào đơn lẻ co nhỏ, cô đặc nhân, tạo thể apoptotic, không gây viêm. Hoại tử thì màng vỡ, giải phóng nội bào và gây viêm.',
+ link:'physiology'},
+{domain:'pathology',step:1,diff:2,bloom:'analyze',
+ vignette:'Trẻ 6 tuổi phù toàn thân, nước tiểu bọt. Xét nghiệm: protein niệu 4.5 g/ngày, albumin máu 2.1 g/dL, cholesterol tăng cao.',
+ stem:'Hội chứng nào phù hợp nhất?',
+ options:['Hội chứng thận hư','Hội chứng viêm cầu thận','Suy thận cấp trước thận','Nhiễm trùng tiểu','Viêm bể thận cấp'],
+ correct:0,
+ exp:'Hội chứng thận hư: protein niệu >3.5 g/ngày, giảm albumin máu, phù, tăng lipid máu. Ở trẻ em nguyên nhân hay gặp là bệnh cầu thận sang thương tối thiểu.',
+ link:'physiology'},
+
+/* ---- PHARMACOLOGY ---- */
+{domain:'pharmacology',step:1,diff:2,bloom:'understand',
+ vignette:'Bệnh nhân rung nhĩ được kê một thuốc chống đông đường uống cần theo dõi INR và bị ảnh hưởng bởi lượng vitamin K trong khẩu phần ăn.',
+ stem:'Cơ chế tác dụng của thuốc này?',
+ options:['Ức chế trực tiếp thrombin','Ức chế yếu tố Xa trực tiếp','Ức chế vitamin K epoxide reductase','Hoạt hóa antithrombin III','Ức chế kết tập tiểu cầu qua COX-1'],
+ correct:2,
+ exp:'Warfarin ức chế vitamin K epoxide reductase → giảm dạng khử của vitamin K → giảm tổng hợp yếu tố II, VII, IX, X và protein C, S.',
+ link:'physiology'},
+{domain:'pharmacology',step:1,diff:2,bloom:'understand',
+ vignette:'Bệnh nhân tăng huyết áp được kê lisinopril, sau vài tuần xuất hiện ho khan dai dẳng nhưng không khó thở, không sốt, X-quang phổi bình thường.',
+ stem:'Cơ chế của tác dụng phụ này?',
+ options:['Tích tụ bradykinin','Co thắt phế quản do chẹn beta','Ức chế cyclooxygenase','Tăng leukotriene','Phù mạch do histamine'],
+ correct:0,
+ exp:'ACEi làm giảm phân hủy bradykinin → tích tụ gây ho khan (và hiếm hơn là phù mạch). Chuyển sang ARB (không ảnh hưởng bradykinin) nếu không dung nạp.',
+ link:'physiology'},
+{domain:'pharmacology',step:1,diff:3,bloom:'apply',
+ vignette:'Bệnh nhân nhiễm khuẩn Gram âm nặng được dùng gentamicin. Cần theo dõi để tránh độc tính đặc trưng của nhóm kháng sinh này.',
+ stem:'Độc tính cần theo dõi chặt nhất là gì?',
+ options:['Độc gan','Độc thận và độc tai','Ức chế tủy xương','Kéo dài QT','Viêm gân Achilles'],
+ correct:1,
+ exp:'Aminoglycoside (gentamicin) gây độc thận (hoại tử ống thận, thường hồi phục) và độc tai (tiền đình/ốc tai, có thể không hồi phục). Cần theo dõi chức năng thận và nồng độ thuốc.',
+ link:'physiology'},
+
+/* ---- PHYSIOLOGY ---- */
+{domain:'physiology',step:1,diff:2,bloom:'understand',
+ vignette:'Trong thí nghiệm tim cô lập, tăng thể tích cuối tâm trương (tăng tiền tải) làm sợi cơ tim bị kéo dài hơn trước khi co.',
+ stem:'Theo định luật Frank-Starling, hệ quả là gì?',
+ options:['Thể tích nhát bóp tăng','Thể tích nhát bóp giảm','Nhịp tim tăng phản xạ','Hậu tải giảm','Sức co bóp không đổi'],
+ correct:0,
+ exp:'Frank-Starling: trong giới hạn sinh lý, tăng tiền tải (kéo dài sợi cơ) làm tăng lực co bóp và thể tích nhát bóp, giúp cân bằng cung lượng hai thất.',
+ link:'pathology'},
+{domain:'physiology',step:1,diff:3,bloom:'apply',
+ vignette:'Một hormone vỏ thượng thận tác động lên tế bào chính (principal cells) của ống góp thận, làm tăng số kênh Na⁺ và bơm Na⁺/K⁺-ATPase.',
+ stem:'Tác dụng lên điện giải là gì?',
+ options:['Tái hấp thu Na⁺, thải K⁺','Thải Na⁺, giữ K⁺','Giữ cả Na⁺ và K⁺','Thải cả Na⁺ và K⁺','Tăng tái hấp thu Ca²⁺'],
+ correct:0,
+ exp:'Aldosterone tác động lên tế bào chính ống góp: tăng tái hấp thu Na⁺ (và nước), tăng thải K⁺ và H⁺. Cường aldosterone gây tăng huyết áp và hạ kali máu.',
+ link:'pathology'},
+{domain:'physiology',step:1,diff:2,bloom:'analyze',
+ vignette:'Trong mô cơ đang vận động mạnh: nhiệt độ tăng, CO₂ và H⁺ tăng, 2,3-BPG tăng.',
+ stem:'Ảnh hưởng lên đường cong phân ly oxy-hemoglobin?',
+ options:['Dịch phải, giảm ái lực O₂','Dịch trái, tăng ái lực O₂','Không thay đổi','Dịch trái, giảm ái lực','Trở nên tuyến tính'],
+ correct:0,
+ exp:'Hiệu ứng Bohr: tăng CO₂/H⁺/nhiệt độ/2,3-BPG làm đường cong dịch phải, giảm ái lực Hb với O₂ → nhả O₂ cho mô hoạt động. Rất hợp lý về sinh lý.',
+ link:'pathology'},
+
+/* ---- MICROBIOLOGY & IMMUNOLOGY ---- */
+{domain:'microbiology',step:1,diff:2,bloom:'understand',
+ vignette:'Cấy mủ áp xe da mọc cầu khuẩn Gram dương xếp thành chùm, catalase dương tính, coagulase dương tính, lên men mannitol.',
+ stem:'Vi khuẩn nào phù hợp nhất?',
+ options:['Streptococcus pyogenes','Staphylococcus aureus','Staphylococcus epidermidis','Enterococcus faecalis','Streptococcus agalactiae'],
+ correct:1,
+ exp:'Cầu Gram dương chùm, catalase (+), coagulase (+), mannitol (+) = Staphylococcus aureus. S. epidermidis coagulase (−); liên cầu catalase (−).',
+ link:'pathology'},
+{domain:'microbiology',step:1,diff:2,bloom:'understand',
+ vignette:'Một retrovirus xâm nhập tế bào bằng cách gắn glycoprotein gp120 vào một thụ thể bề mặt và đồng thụ thể CCR5/CXCR4, dần làm suy giảm miễn dịch tế bào.',
+ stem:'Tế bào đích chính của virus này?',
+ options:['Tế bào lympho B','Tế bào lympho T CD4⁺','Tế bào lympho T CD8⁺','Bạch cầu trung tính','Tế bào NK'],
+ correct:1,
+ exp:'HIV gắn gp120 vào CD4 kèm đồng thụ thể CCR5/CXCR4, chủ yếu nhiễm và phá hủy lympho T-helper CD4⁺, gây suy giảm miễn dịch tiến triển.',
+ link:'physiology'},
+{domain:'microbiology',step:1,diff:3,bloom:'apply',
+ vignette:'Nam 45 tuổi ho kéo dài, ho ra máu, sụt cân, đổ mồ hôi đêm. Đờm nhuộm kháng acid (AFB) dương tính; mô học có u hạt hoại tử bã đậu.',
+ stem:'Phác đồ điều trị khởi đầu chuẩn là gì?',
+ options:['Isoniazid + Rifampin + Pyrazinamide + Ethambutol','Azithromycin đơn thuần','Vancomycin + Cefepime','Amphotericin B','Metronidazole + Ciprofloxacin'],
+ correct:0,
+ exp:'Lao (Mycobacterium tuberculosis): AFB (+), u hạt bã đậu. Phác đồ tấn công RIPE 2 tháng (Rifampin, Isoniazid, Pyrazinamide, Ethambutol) rồi duy trì RI 4 tháng.',
+ link:'pharmacology'},
+
+/* ---- BIOCHEMISTRY & GENETICS ---- */
+{domain:'biochemistry',step:1,diff:3,bloom:'analyze',
+ vignette:'Nam 20 tuổi gốc Địa Trung Hải, thiếu máu tan máu cấp và nước tiểu sẫm sau khi dùng primaquine. Phết máu: thể Heinz và tế bào "bite cells".',
+ stem:'Thiếu hụt enzyme nào?',
+ options:['Pyruvate kinase','Glucose-6-phosphate dehydrogenase (G6PD)','Hexokinase','Glucocerebrosidase','Aldolase B'],
+ correct:1,
+ exp:'Thiếu G6PD (di truyền lặn liên kết X): giảm NADPH → hồng cầu dễ tổn thương oxy hóa. Tác nhân oxy hóa (primaquine, nhiễm trùng, đậu fava) gây tan máu, thể Heinz, bite cells.',
+ link:'pathology'},
+{domain:'biochemistry',step:1,diff:2,bloom:'analyze',
+ vignette:'Cặp bố mẹ khỏe mạnh có một con mắc bệnh xơ nang. Cả hai bên gia đình không ai mắc bệnh; con trai và con gái đều có thể bị.',
+ stem:'Kiểu di truyền của bệnh này?',
+ options:['Trội trên nhiễm sắc thể thường','Lặn trên nhiễm sắc thể thường','Trội liên kết X','Lặn liên kết X','Di truyền ty thể'],
+ correct:1,
+ exp:'Xơ nang (CFTR) di truyền lặn NST thường: bố mẹ dị hợp không biểu hiện, con mắc bệnh khi nhận cả hai alen bệnh; ảnh hưởng cả hai giới, thường "nhảy cách" thế hệ.',
+ link:'pathology'},
+{domain:'biochemistry',step:1,diff:2,bloom:'understand',
+ vignette:'Nam nghiện rượu mạn, ăn uống kém, đột ngột lú lẫn, liệt vận nhãn và mất điều hòa dáng đi. Triệu chứng cải thiện nhanh sau khi bổ sung một vitamin.',
+ stem:'Thiếu vitamin nào gây bệnh cảnh này?',
+ options:['Vitamin B1 (thiamine)','Vitamin B12','Folate','Vitamin C','Niacin (B3)'],
+ correct:0,
+ exp:'Bệnh não Wernicke: thiếu thiamine (B1) — tam chứng lú lẫn, liệt vận nhãn, thất điều. Phải bù thiamine TRƯỚC khi truyền glucose để tránh làm nặng thêm.',
+ link:'physiology'},
+
+/* ---- COMMUNITY (Biostats / Ethics / Prevention) ---- */
+{domain:'community',step:1,diff:3,bloom:'analyze',
+ vignette:'Một xét nghiệm tầm soát mới có khả năng phát hiện đúng phần lớn người thực sự mắc bệnh, rất ít bỏ sót ca bệnh (âm tính giả thấp).',
+ stem:'Xét nghiệm này có đặc tính nào cao, và phù hợp mục đích gì?',
+ options:['Độ đặc hiệu cao — để xác định chẩn đoán','Độ nhạy cao — để tầm soát/loại trừ bệnh','Giá trị tiên đoán dương cao','Tỷ số khả dĩ âm cao','Độ tin cậy thấp'],
+ correct:1,
+ exp:'Độ nhạy = TP/(TP+FN); độ nhạy cao ít bỏ sót ca bệnh, tốt cho tầm soát và loại trừ ("SnNout"). Test âm tính đáng tin để loại trừ bệnh.',
+ link:'physiology'},
+{domain:'community',step:1,diff:2,bloom:'apply',
+ vignette:'Bệnh nhân 45 tuổi tỉnh táo, hiểu rõ nguy cơ và lợi ích, từ chối truyền máu vì lý do tôn giáo dù bác sĩ khuyến cáo. Bệnh nhân có đủ năng lực ra quyết định.',
+ stem:'Hành xử đúng về mặt y đức?',
+ options:['Truyền máu vì lợi ích tốt nhất của bệnh nhân','Tôn trọng quyết định từ chối của bệnh nhân','Xin lệnh tòa để truyền máu','Nhờ người nhà quyết định thay','Chờ đến khi bệnh nhân hôn mê rồi truyền'],
+ correct:1,
+ exp:'Nguyên tắc tự chủ (autonomy): bệnh nhân trưởng thành, đủ năng lực, được thông tin đầy đủ có quyền từ chối điều trị — kể cả khi cứu mạng. Cần tôn trọng và ghi nhận.',
+ link:'physiology'},
+{domain:'community',step:1,diff:3,bloom:'analyze',
+ vignette:'Nhà nghiên cứu muốn xác định liệu một thuốc mới có THỰC SỰ gây ra cải thiện kết cục hay không, giảm tối đa sai lệch và yếu tố gây nhiễu.',
+ stem:'Thiết kế nghiên cứu nào cho bằng chứng nhân quả mạnh nhất?',
+ options:['Nghiên cứu bệnh-chứng','Thử nghiệm lâm sàng ngẫu nhiên có đối chứng (RCT)','Nghiên cứu cắt ngang','Báo cáo ca bệnh','Nghiên cứu sinh thái'],
+ correct:1,
+ exp:'RCT (ngẫu nhiên, có đối chứng, làm mù) là thiết kế mạnh nhất để suy luận nhân quả vì phân bổ ngẫu nhiên cân bằng yếu tố gây nhiễu. Bệnh-chứng phù hợp bệnh hiếm (tính OR).',
+ link:'physiology'},
+
+/* ---- INTERNAL (extra: electrolyte emergency) ---- */
+{domain:'internal',step:2,diff:3,bloom:'apply',
+ vignette:'Nam 60 tuổi bệnh thận mạn, yếu cơ, hồi hộp. Kali máu 7.2 mmol/L. ECG: sóng T cao nhọn, QRS bắt đầu giãn rộng.',
+ stem:'Xử trí ĐẦU TIÊN để bảo vệ tim?',
+ options:['Insulin + glucose tĩnh mạch','Calcium gluconate tĩnh mạch','Kayexalate (nhựa trao đổi ion) uống','Salbutamol khí dung','Furosemide tĩnh mạch'],
+ correct:1,
+ exp:'Tăng kali máu có biến đổi ECG: calcium gluconate/chloride TRƯỚC TIÊN để ổn định màng tế bào cơ tim (không làm giảm kali). Sau đó insulin+glucose, salbutamol để chuyển kali vào tế bào, và biện pháp thải kali.',
+ link:'physiology'},
+
+/* ==================== BATCH 2: +39 câu (3/khoa) ==================== */
+/* ---- INTERNAL ---- */
+{domain:'internal',step:2,diff:2,bloom:'apply',
+ vignette:'Nam 40 tuổi khỏe mạnh, không bệnh nền, sốt và ho đờm 3 ngày, X-quang có đông đặc thùy dưới phải. Điều trị ngoại trú.',
+ stem:'Kháng sinh kinh nghiệm hàng đầu cho viêm phổi cộng đồng ở người khỏe mạnh, ngoại trú?',
+ options:['Amoxicillin liều cao','Vancomycin tĩnh mạch','Meropenem','Không cần kháng sinh','Oseltamivir'],
+ correct:0, exp:'Viêm phổi cộng đồng ngoại trú, không bệnh nền: first-line amoxicillin liều cao (hoặc doxycycline/macrolide nơi ít kháng thuốc).', link:'microbiology'},
+{domain:'internal',step:2,diff:3,bloom:'apply',
+ vignette:'Nam 52 tuổi, tăng huyết áp vô căn không biến chứng, không ĐTĐ hay bệnh thận. Cần đơn trị khởi đầu.',
+ stem:'Lựa chọn khởi đầu hợp lý nhất?',
+ options:['Amlodipine (hoặc lợi tiểu thiazide)','Atenolol','Hydralazine','Clonidine','Furosemide'],
+ correct:0, exp:'THA vô căn không biến chứng: first-line gồm thiazide, CCB, ACEi/ARB. Chẹn beta không còn là lựa chọn đầu tay khi không có chỉ định bắt buộc.', link:'physiology'},
+{domain:'internal',step:2,diff:3,bloom:'apply',
+ vignette:'Nữ 30 tuổi sụt cân, hồi hộp, run tay, lồi mắt, bướu giáp lan tỏa. TSH giảm, FT4 tăng, kháng thể TRAb dương.',
+ stem:'Thuốc kháng giáp hàng đầu?',
+ options:['Methimazole','Levothyroxine','Amiodarone','Corticoid đơn thuần','Metformin'],
+ correct:0, exp:'Basedow (Graves): methimazole là kháng giáp first-line (PTU ưu tiên trong 3 tháng đầu thai kỳ). Ngoài ra có iốt phóng xạ hoặc phẫu thuật.', link:'pharmacology'},
+
+/* ---- SURGERY ---- */
+{domain:'surgery',step:2,diff:2,bloom:'apply',
+ vignette:'Nữ 45 tuổi đau hạ sườn phải sau ăn mỡ, sốt, dấu Murphy dương. Siêu âm: sỏi túi mật + thành túi mật dày.',
+ stem:'Điều trị phù hợp nhất?',
+ options:['Kháng sinh đơn thuần lâu dài','Cắt túi mật nội soi','ERCP cấp cứu','Tán sỏi ngoài cơ thể','Chỉ theo dõi'],
+ correct:1, exp:'Viêm túi mật cấp do sỏi: cắt túi mật nội soi (kèm kháng sinh) là điều trị chuẩn, ưu tiên sớm trong 72 giờ.', link:'pathology'},
+{domain:'surgery',step:2,diff:3,bloom:'apply',
+ vignette:'Nam 60 tuổi tiền sử mổ bụng, đau bụng cơn, chướng bụng, nôn, bí trung đại tiện. X-quang: mức nước-hơi, quai ruột giãn.',
+ stem:'Xử trí ban đầu của tắc ruột non do dính (chưa có dấu hiệu hoại tử)?',
+ options:['Đặt sonde mũi-dạ dày giải áp + bù dịch','Mổ mở ngay lập tức','Thụt tháo đại tràng','Cho ăn sớm','Nội soi dạ dày cấp'],
+ correct:0, exp:'Tắc ruột non do dính không biến chứng: điều trị bảo tồn ban đầu — nhịn ăn, sonde dạ dày giải áp, bù dịch điện giải; mổ nếu thất bại hoặc có dấu thắt nghẹt.', link:'physiology'},
+{domain:'surgery',step:2,diff:3,bloom:'analyze',
+ vignette:'Nữ 55 tuổi sờ thấy khối vú cứng, cố định, kèm lõm da. Không đau.',
+ stem:'Bước chẩn đoán tiếp theo phù hợp nhất?',
+ options:['Sinh thiết lõi kim (core biopsy)','Theo dõi lại sau 6 tháng','Kháng sinh','Chọc hút và trấn an','Cắt toàn bộ vú ngay'],
+ correct:0, exp:'Khối vú nghi ngờ ác tính: đánh giá bộ ba (khám + chẩn đoán hình ảnh + sinh thiết lõi kim) để có mô bệnh học trước khi điều trị.', link:'pathology'},
+
+/* ---- OB/GYN ---- */
+{domain:'obgyn',step:2,diff:3,bloom:'analyze',
+ vignette:'Sản phụ 34 tuần ra huyết âm đạo kèm đau bụng dữ dội, tử cung co cứng và đau, sau một cú va chạm. Tăng huyết áp mạn.',
+ stem:'Chẩn đoán nhiều khả năng nhất?',
+ options:['Nhau bong non','Nhau tiền đạo','Vỡ ối non','Dọa sinh non đơn thuần','Sa dây rốn'],
+ correct:0, exp:'Nhau bong non: chảy máu KÈM đau, tử cung co cứng đau, yếu tố nguy cơ chấn thương/THA. Nhau tiền đạo thì chảy máu KHÔNG đau.', link:'pathology'},
+{domain:'obgyn',step:2,diff:2,bloom:'apply',
+ vignette:'Sản phụ 36 tuần, cấy dịch âm đạo-trực tràng dương tính liên cầu nhóm B (GBS).',
+ stem:'Dự phòng phù hợp để giảm nhiễm khuẩn sơ sinh?',
+ options:['Penicillin tĩnh mạch trong chuyển dạ','Không cần dự phòng','Metronidazole uống','Acyclovir','Mổ lấy thai chủ động'],
+ correct:0, exp:'GBS (+): dự phòng bằng penicillin (hoặc ampicillin) tĩnh mạch trong chuyển dạ để phòng nhiễm khuẩn sơ sinh khởi phát sớm.', link:'microbiology'},
+{domain:'obgyn',step:2,diff:2,bloom:'apply',
+ vignette:'Ngay sau sinh thường, sản phụ chảy máu ồ ạt; tử cung mềm nhão, sờ không co hồi tốt.',
+ stem:'Xử trí đầu tiên của băng huyết sau sinh do đờ tử cung?',
+ options:['Xoa đáy tử cung + oxytocin','Cắt tử cung ngay','Truyền kháng sinh phổ rộng','Chờ theo dõi','Khâu tầng sinh môn'],
+ correct:0, exp:'Băng huyết do đờ tử cung: xoa đáy tử cung và thuốc co hồi (oxytocin) là bước đầu; leo thang sang các thuốc khác/thủ thuật nếu thất bại.', link:'pharmacology'},
+
+/* ---- PEDIATRICS ---- */
+{domain:'pediatrics',step:2,diff:2,bloom:'apply',
+ vignette:'Bé 8 tháng mùa đông, sổ mũi rồi khò khè, thở nhanh co lõm ngực, ran rít lan tỏa. Test RSV dương.',
+ stem:'Điều trị phù hợp nhất cho viêm tiểu phế quản?',
+ options:['Điều trị hỗ trợ (oxy, bù dịch)','Kháng sinh tĩnh mạch','Corticoid toàn thân','Salbutamol thường quy','Ribavirin thường quy'],
+ correct:0, exp:'Viêm tiểu phế quản (thường do RSV): chủ yếu điều trị hỗ trợ (oxy, dinh dưỡng/dịch). Kháng sinh, corticoid, giãn phế quản không thường quy.', link:'microbiology'},
+{domain:'pediatrics',step:2,diff:3,bloom:'analyze',
+ vignette:'Bé 9 tháng đau bụng cơn, khóc thét từng đợt, nôn, đại tiện nhầy máu như "thạch phúc bồn tử", sờ khối dài hình xúc xích ở bụng.',
+ stem:'Xử trí chẩn đoán và điều trị bước đầu?',
+ options:['Thụt tháo bằng khí/cản quang','Kháng sinh và theo dõi','Mổ cắt ruột ngay','Theo dõi tại nhà','Nội soi đại tràng'],
+ correct:0, exp:'Lồng ruột: thụt khí/cản quang vừa chẩn đoán vừa tháo lồng (nếu chưa có viêm phúc mạc/thủng). Mổ khi thụt thất bại hoặc có biến chứng.', link:'pathology'},
+{domain:'pediatrics',step:2,diff:3,bloom:'apply',
+ vignette:'Bé 4 tuổi chưa tiêm chủng đầy đủ, sốt cao, chảy nước dãi, ngồi tư thế "kiềng ba chân", nói giọng ngậm, KHÔNG ho ông ổng.',
+ stem:'Xử trí ưu tiên?',
+ options:['Đảm bảo đường thở (không đè lưỡi khám họng)','Đè lưỡi khám họng ngay','Kháng histamine','Khí dung salbutamol','Chụp CT trước tiên'],
+ correct:0, exp:'Viêm nắp thanh quản (Hib): tối khẩn về đường thở — không kích thích/khám họng vì có thể gây co thắt tắc nghẽn; chuẩn bị đặt nội khí quản có kiểm soát + kháng sinh.', link:'microbiology'},
+
+/* ---- EMERGENCY ---- */
+{domain:'emergency',step:2,diff:2,bloom:'apply',
+ vignette:'Nữ 22 tuổi uống quá liều paracetamol 6 giờ trước, hiện chưa triệu chứng. Nồng độ paracetamol trên ngưỡng độc theo toán đồ.',
+ stem:'Thuốc giải độc đặc hiệu?',
+ options:['N-acetylcysteine','Than hoạt sau 24 giờ','Naloxone','Flumazenil','Vitamin K'],
+ correct:0, exp:'Ngộ độc paracetamol: N-acetylcysteine bổ sung glutathione, hiệu quả nhất khi dùng sớm (trong 8 giờ), giảm hoại tử gan.', link:'pharmacology'},
+{domain:'emergency',step:2,diff:2,bloom:'apply',
+ vignette:'Nam 28 tuổi lơ mơ, thở 6 lần/phút, đồng tử co nhỏ như đầu đinh, có dấu chích tĩnh mạch.',
+ stem:'Thuốc cấp cứu đầu tay?',
+ options:['Naloxone','Flumazenil','Atropine','Adrenaline','Glucagon'],
+ correct:0, exp:'Quá liều opioid (ức chế hô hấp, đồng tử co nhỏ): naloxone (đối kháng opioid) đảo ngược nhanh; hỗ trợ hô hấp song song.', link:'pharmacology'},
+{domain:'emergency',step:2,diff:3,bloom:'apply',
+ vignette:'Bệnh nhân ngưng tim, monitor cho thấy rung thất (VF).',
+ stem:'Can thiệp quan trọng nhất ngay lập tức?',
+ options:['Sốc điện khử rung ngay','Amiodarone trước tiên','Đặt nội khí quản trước tiên','Atropine','Adenosine'],
+ correct:0, exp:'Rung thất/nhịp nhanh thất vô mạch: khử rung sớm + ép tim chất lượng cao là yếu tố quyết định sống còn. Thuốc là hỗ trợ.', link:'physiology'},
+
+/* ---- PSYCH & NEURO ---- */
+{domain:'psychneuro',step:2,diff:3,bloom:'apply',
+ vignette:'Nam 24 tuổi khí sắc tăng cao 1 tuần, ngủ rất ít mà không mệt, nói nhiều, tự cao, tiêu tiền và hành vi nguy cơ.',
+ stem:'Điều trị dược lý phù hợp cho cơn hưng cảm?',
+ options:['Lithium (hoặc chống loạn thần không điển hình)','SSRI đơn thuần','Benzodiazepine dài hạn','Methylphenidate','Levodopa'],
+ correct:0, exp:'Cơn hưng cảm (rối loạn lưỡng cực): ổn định khí sắc bằng lithium/valproate hoặc chống loạn thần không điển hình. SSRI đơn thuần có thể kích hoạt hưng cảm.', link:'pharmacology'},
+{domain:'psychneuro',step:2,diff:3,bloom:'apply',
+ vignette:'Nam 20 tuổi sốt, cứng gáy, sợ ánh sáng, đau đầu dữ dội, lơ mơ nhẹ.',
+ stem:'Nguyên tắc xử trí quan trọng nhất khi nghi viêm màng não vi khuẩn?',
+ options:['Kháng sinh tĩnh mạch theo kinh nghiệm ngay (không trì hoãn)','Chờ kết quả chọc dịch não tủy rồi mới điều trị','Chỉ hạ sốt và theo dõi','Acyclovir đơn thuần','Kháng histamine'],
+ correct:0, exp:'Nghi viêm màng não vi khuẩn: cấy máu rồi kháng sinh kinh nghiệm NGAY (± dexamethasone), không trì hoãn vì chờ CT/chọc dịch. Chậm điều trị tăng tử vong.', link:'microbiology'},
+{domain:'psychneuro',step:2,diff:2,bloom:'apply',
+ vignette:'Nữ 72 tuổi suy giảm trí nhớ tiến triển nhiều năm, quên gần, lạc đường, mất dần chức năng; không đột quỵ cấp.',
+ stem:'Điều trị triệu chứng hàng đầu cho bệnh Alzheimer?',
+ options:['Donepezil (ức chế cholinesterase)','Levodopa','Haloperidol','Lithium','Phenytoin'],
+ correct:0, exp:'Alzheimer: thuốc ức chế cholinesterase (donepezil, rivastigmine, galantamine); memantine cho giai đoạn vừa-nặng. Cải thiện triệu chứng, không chữa khỏi.', link:'pharmacology'},
+
+/* ---- LABS & IMAGING ---- */
+{domain:'labdx',step:1,diff:3,bloom:'analyze',
+ vignette:'Nữ 60 tuổi ăn chay trường, mệt, dị cảm, mất thăng bằng. Hb 9, MCV 112 fL, phết máu có bạch cầu trung tính nhân tăng đoạn.',
+ stem:'Chẩn đoán phù hợp nhất?',
+ options:['Thiếu vitamin B12','Thiếu sắt','Thalassemia','Ngộ độc chì','Suy giáp đơn thuần'],
+ correct:0, exp:'Thiếu máu hồng cầu to (MCV cao) + bạch cầu tăng đoạn + triệu chứng thần kinh = thiếu B12. Folate thiếu gây thiếu máu to nhưng KHÔNG có triệu chứng thần kinh.', link:'biochemistry'},
+{domain:'labdx',step:1,diff:3,bloom:'analyze',
+ vignette:'Bệnh nhân ung thư phổi, Na⁺ máu 122, độ thẩm thấu huyết tương thấp, độ thẩm thấu niệu cao, thể tích dịch bình thường (euvolemic).',
+ stem:'Nguyên nhân hạ natri máu phù hợp nhất?',
+ options:['SIADH (tiết ADH không phù hợp)','Đái tháo nhạt','Mất nước','Suy tim sung huyết','Suy thượng thận'],
+ correct:0, exp:'SIADH: hạ Na đẳng tích, thẩm thấu huyết tương thấp nhưng nước tiểu cô đặc bất thường (thẩm thấu niệu cao). Hay gặp trong ung thư phổi tế bào nhỏ.', link:'physiology'},
+{domain:'labdx',step:2,diff:2,bloom:'analyze',
+ vignette:'Nam 70 tuổi khó thở, phù chân, ran ẩm đáy phổi. BNP tăng rất cao; X-quang có bóng tim to và đường Kerley B.',
+ stem:'Chẩn đoán nhiều khả năng nhất?',
+ options:['Suy tim','Thuyên tắc phổi','Viêm phổi','Cơn hen','Thiếu máu'],
+ correct:0, exp:'BNP tăng cao + phù + ran ẩm + Kerley B = suy tim sung huyết. BNP âm tính có giá trị loại trừ suy tim ở bệnh nhân khó thở.', link:'physiology'},
+
+/* ---- PATHOLOGY ---- */
+{domain:'pathology',step:1,diff:2,bloom:'understand',
+ vignette:'Sinh thiết hạch cho thấy u hạt có hoại tử bã đậu ở trung tâm, tế bào khổng lồ Langhans.',
+ stem:'Nguyên nhân điển hình nhất?',
+ options:['Lao','Sarcoidosis','Ung thư di căn','Viêm mủ do tụ cầu','Phản ứng dị vật'],
+ correct:0, exp:'U hạt hoại tử BÃ ĐẬU (caseating) đặc trưng cho lao. Sarcoidosis tạo u hạt KHÔNG hoại tử bã đậu.', link:'microbiology'},
+{domain:'pathology',step:1,diff:2,bloom:'understand',
+ vignette:'Một khối u ác tính xuất phát từ mô biểu mô tuyến của đại tràng.',
+ stem:'Thuật ngữ đúng cho khối u này?',
+ options:['Carcinoma (ung thư biểu mô)','Sarcoma','Lymphoma','Leukemia','U tuyến lành tính'],
+ correct:0, exp:'Ung thư nguồn gốc biểu mô = carcinoma (tuyến → adenocarcinoma). Sarcoma là ác tính mô trung mô; lymphoma/leukemia từ dòng tạo máu.', link:'physiology'},
+{domain:'pathology',step:1,diff:2,bloom:'understand',
+ vignette:'Mô viêm cấp trong 24 giờ đầu: mạch giãn, thoát dịch, và một loại bạch cầu xâm nhập chiếm ưu thế.',
+ stem:'Tế bào chiếm ưu thế trong viêm cấp?',
+ options:['Bạch cầu trung tính','Lympho bào','Đại thực bào','Tương bào','Bạch cầu ái toan'],
+ correct:0, exp:'Viêm cấp: bạch cầu trung tính (neutrophil) đến sớm và chiếm ưu thế. Viêm mạn chuyển sang lympho bào, tương bào và đại thực bào.', link:'physiology'},
+
+/* ---- PHARMACOLOGY ---- */
+{domain:'pharmacology',step:1,diff:2,bloom:'understand',
+ vignette:'Bệnh nhân rối loạn lipid máu được kê một thuốc làm giảm tổng hợp cholesterol nội sinh ở gan và tăng thụ thể LDL.',
+ stem:'Cơ chế tác dụng của nhóm thuốc này (statin)?',
+ options:['Ức chế HMG-CoA reductase','Ức chế hấp thu cholesterol ở ruột','Hoạt hóa lipoprotein lipase','Ức chế PCSK9','Gắn acid mật ở ruột'],
+ correct:0, exp:'Statin ức chế HMG-CoA reductase (bước giới hạn tổng hợp cholesterol) → tăng thụ thể LDL ở gan → giảm LDL máu.', link:'biochemistry'},
+{domain:'pharmacology',step:1,diff:3,bloom:'apply',
+ vignette:'Bệnh nhân hen phế quản vô tình dùng một thuốc chẹn beta không chọn lọc và lên cơn khó thở, khò khè.',
+ stem:'Tác dụng phụ giải thích tình huống này?',
+ options:['Co thắt phế quản','Tăng đường huyết','Giãn đồng tử','Táo bón','Ù tai'],
+ correct:0, exp:'Chẹn beta không chọn lọc chặn β2 ở phế quản → co thắt phế quản, nguy hiểm ở người hen/COPD. Ưu tiên chẹn beta chọn lọc β1 nếu bắt buộc.', link:'physiology'},
+{domain:'pharmacology',step:1,diff:3,bloom:'apply',
+ vignette:'Bệnh nhân suy tim dùng digoxin, buồn nôn, nhìn thấy quầng vàng, loạn nhịp. Đang dùng lợi tiểu quai.',
+ stem:'Yếu tố nào làm NẶNG thêm độc tính digoxin?',
+ options:['Hạ kali máu','Tăng kali máu','Hạ canxi máu','Tăng magie máu','Kiềm hô hấp'],
+ correct:0, exp:'Hạ kali máu (thường do lợi tiểu quai/thiazide) làm tăng gắn digoxin vào Na⁺/K⁺-ATPase → tăng độc tính. Cần theo dõi và bù kali.', link:'physiology'},
+
+/* ---- PHYSIOLOGY ---- */
+{domain:'physiology',step:1,diff:3,bloom:'apply',
+ vignette:'Trong thực nghiệm, tiểu động mạch ĐẾN (afferent) của cầu thận bị co lại.',
+ stem:'Hệ quả trực tiếp lên mức lọc cầu thận (GFR)?',
+ options:['Giảm GFR','Tăng GFR','Không đổi','Tăng dòng máu thận','Tăng lọc protein'],
+ correct:0, exp:'Co tiểu động mạch đến làm giảm áp lực và dòng máu vào cầu thận → giảm GFR. Ngược lại, co tiểu động mạch ĐI làm tăng GFR (cơ chế của angiotensin II).', link:'pathology'},
+{domain:'physiology',step:1,diff:2,bloom:'understand',
+ vignette:'Sau bữa ăn, tụy tiết một hormone làm giảm đường huyết bằng cách đưa glucose vào tế bào.',
+ stem:'Tác dụng chính của insulin lên cơ và mô mỡ?',
+ options:['Tăng thu nhận glucose qua GLUT4','Tăng phân giải glycogen','Tăng tân tạo đường','Tăng ly giải mỡ','Tăng đường huyết'],
+ correct:0, exp:'Insulin chuyển GLUT4 lên màng tế bào cơ và mỡ → tăng thu nhận glucose; đồng thời tăng tổng hợp glycogen, protein và lipid.', link:'biochemistry'},
+{domain:'physiology',step:1,diff:3,bloom:'apply',
+ vignette:'Bệnh nhân mất máu cấp, huyết áp tụt.',
+ stem:'Phản xạ áp cảm thụ quan (baroreceptor) sẽ gây ra?',
+ options:['Tăng nhịp tim do giao cảm','Giảm nhịp tim','Giãn mạch toàn thân','Giảm sức co bóp cơ tim','Giảm tiết renin'],
+ correct:0, exp:'Tụt huyết áp làm giảm kích thích baroreceptor → tăng giao cảm, giảm phó giao cảm → tăng nhịp tim, co mạch, tăng co bóp để nâng huyết áp.', link:'pathology'},
+
+/* ---- MICROBIOLOGY ---- */
+{domain:'microbiology',step:1,diff:2,bloom:'understand',
+ vignette:'Nam 25 tuổi tiểu buốt, chảy mủ niệu đạo. Nhuộm Gram dịch niệu đạo: song cầu Gram âm trong bạch cầu.',
+ stem:'Tác nhân phù hợp nhất?',
+ options:['Neisseria gonorrhoeae','Treponema pallidum','Candida albicans','Escherichia coli','Trichomonas vaginalis'],
+ correct:0, exp:'Song cầu Gram âm nội bào + viêm niệu đạo mủ = lậu cầu (Neisseria gonorrhoeae). Điều trị ceftriaxone, thường phối hợp phủ Chlamydia.', link:'pharmacology'},
+{domain:'microbiology',step:1,diff:2,bloom:'understand',
+ vignette:'Trong đáp ứng miễn dịch dịch thể lần đầu tiếp xúc kháng nguyên, một lớp kháng thể được tạo ra sớm nhất.',
+ stem:'Kháng thể xuất hiện đầu tiên là?',
+ options:['IgM','IgG','IgA','IgE','IgD'],
+ correct:0, exp:'IgM là kháng thể xuất hiện sớm nhất trong đáp ứng nguyên phát (pentamer, ngưng kết mạnh). IgG chiếm ưu thế và bền hơn ở đáp ứng thứ phát.', link:'physiology'},
+{domain:'microbiology',step:1,diff:2,bloom:'apply',
+ vignette:'Cần chọn vắc-xin cho một trẻ khỏe mạnh; một loại là vắc-xin virus sống giảm độc lực, chống chỉ định ở thai phụ và người suy giảm miễn dịch.',
+ stem:'Vắc-xin nào thuộc loại sống giảm độc lực?',
+ options:['MMR (sởi-quai bị-rubella)','Vắc-xin viêm gan B tái tổ hợp','Giải độc tố uốn ván','Vắc-xin bại liệt bất hoạt (IPV)','Vắc-xin cúm bất hoạt'],
+ correct:0, exp:'MMR là vắc-xin sống giảm độc lực → chống chỉ định ở thai phụ và suy giảm miễn dịch nặng. HepB/uốn ván/IPV/cúm tiêm là bất hoạt/tiểu đơn vị.', link:'physiology'},
+
+/* ---- BIOCHEMISTRY ---- */
+{domain:'biochemistry',step:1,diff:2,bloom:'analyze',
+ vignette:'Thủy thủ ăn thiếu rau quả nhiều tháng: chảy máu chân răng, vết thương lâu lành, xuất huyết quanh nang lông.',
+ stem:'Thiếu vitamin nào (ảnh hưởng hydroxyl hóa collagen)?',
+ options:['Vitamin C','Vitamin K','Vitamin B12','Vitamin D','Niacin (B3)'],
+ correct:0, exp:'Scurvy: thiếu vitamin C → giảm hydroxyl hóa proline/lysine, collagen yếu → chảy máu lợi, kém lành vết thương, xuất huyết quanh nang lông.', link:'pathology'},
+{domain:'biochemistry',step:1,diff:2,bloom:'understand',
+ vignette:'Người lớn đầy hơi, đau bụng và tiêu chảy sau khi uống sữa; khí H₂ hơi thở tăng sau nạp lactose.',
+ stem:'Thiếu enzyme nào?',
+ options:['Lactase','Sucrase','Amylase','Lipase tụy','Maltase'],
+ correct:0, exp:'Bất dung nạp lactose: thiếu lactase ở viền bàn chải ruột → lactose không hấp thu, gây tiêu chảy thẩm thấu và lên men sinh hơi.', link:'physiology'},
+{domain:'biochemistry',step:1,diff:3,bloom:'analyze',
+ vignette:'Nam 40 tuổi múa giật, sa sút trí tuệ và rối loạn khí sắc; bố mắc bệnh tương tự khởi phát ở tuổi trung niên.',
+ stem:'Cơ chế/kiểu di truyền phù hợp nhất?',
+ options:['Trội NST thường, lặp lại bộ ba CAG','Lặn NST thường','Lặn liên kết X','Di truyền ty thể','Trội liên kết X'],
+ correct:0, exp:'Bệnh Huntington: trội trên NST thường, do lặp bộ ba CAG mở rộng ở gen HTT; có hiện tượng "anticipation" (khởi phát sớm dần qua các thế hệ).', link:'pathology'},
+
+/* ---- COMMUNITY ---- */
+{domain:'community',step:1,diff:3,bloom:'analyze',
+ vignette:'Một xét nghiệm hiếm khi dương tính giả — gần như chỉ dương ở người thực sự mắc bệnh.',
+ stem:'Xét nghiệm này có đặc tính gì cao và dùng để làm gì?',
+ options:['Độ đặc hiệu cao — để xác định chẩn đoán (rule in)','Độ nhạy cao — để tầm soát','Tỷ lệ hiện mắc cao','Độ tin cậy thấp','Sai số hệ thống cao'],
+ correct:0, exp:'Độ đặc hiệu = TN/(TN+FP); độ đặc hiệu cao ít dương tính giả → test dương đáng tin để xác định bệnh ("SpPin").', link:'physiology'},
+{domain:'community',step:1,diff:3,bloom:'apply',
+ vignette:'Một thuốc mới giảm biến cố từ 10% xuống 5% so với giả dược trong một RCT.',
+ stem:'Số bệnh nhân cần điều trị (NNT) được tính thế nào?',
+ options:['1 / độ giảm nguy cơ tuyệt đối (ARR)','1 / nguy cơ tương đối','ARR × 100','Nguy cơ tương đối − 1','1 / tỷ lệ hiện mắc'],
+ correct:0, exp:'ARR = 10% − 5% = 5% = 0,05 → NNT = 1/0,05 = 20. NNT là số người cần điều trị để tránh 1 biến cố; càng nhỏ càng hiệu quả.', link:'physiology'},
+{domain:'community',step:1,diff:3,bloom:'apply',
+ vignette:'Trong buổi trị liệu, bệnh nhân bày tỏ ý định cụ thể sẽ làm hại một người được nêu đích danh.',
+ stem:'Hành xử y đức phù hợp nhất?',
+ options:['Cảnh báo nạn nhân được nêu tên / báo cơ quan chức năng','Giữ bí mật tuyệt đối vô điều kiện','Cưỡng chế nhập viện người bị đe dọa','Bỏ qua vì chỉ là lời nói','Chỉ ghi vào hồ sơ'],
+ correct:0, exp:'Nguyên tắc Tarasoff: khi có mối đe dọa cụ thể với nạn nhân xác định, nghĩa vụ bảo vệ vượt trên bảo mật — cảnh báo nạn nhân và/hoặc báo cơ quan chức năng.', link:'physiology'},
+];
+
+/* helper: cross-link labels */
+const CROSSLINK_MSG = {
+  physiology:'Sinh lý học', pharmacology:'Dược lý', pathology:'GPB-SLB',
+  microbiology:'Vi sinh', biochemistry:'Hóa sinh'
+};
+
+/* app state */
+const S = {
+  user:{name:'', goal:'both', minutes:60},
+  bank:[], order:[], idx:0, answers:{}, // answers[qid]=chosenIndex
+  scores:{}, // domain -> {correct,total}
+  day:1, streak:1, badges:[], mode:'diagnostic'
+};
+
+/* assign stable ids */
+BANK.forEach((q,i)=>q.id='q'+i);
+
+/* =========================================================================
+   MedAdapt ENGINE — Multi-Agent Architecture (chạy client-side, offline)
+   ORCHESTRATOR điều phối 7 AGENT; mỗi Agent dùng các SKILL (12) + DATA layer.
+   (Có thể thay các skill sinh nội dung bằng AI thật khi nối backend.)
+   ========================================================================= */
+
+/* ---------- 💾 DATA LAYER (mô phỏng SQLite schema.sql · 13 môn) ---------- */
+const DB = {
+  users:[], trackers:{}, sessions:[], reviews:[], lessons:[], notion:{synced:false,at:null},
+  createUser(u){ const id='u'+(this.users.length+1); const rec={id,...u,created:Date.now()};
+    this.users.push(rec); this.trackers[id]={};
+    DOMAIN_KEYS.forEach(k=>this.trackers[id][k]={correct:0,total:0,ability:3}); return rec; },
+  saveSession(s){ this.sessions.push(s); return s; },
+  logReview(r){ this.reviews.push(r); },
+};
+
+/* ---------- ⚡ 12 SKILLS (src/skills/) ---------- */
+const SKILLS = {
+  /* 1  bloom-classifier      */ 'bloom-classifier'(q){ return q.bloom || 'apply'; },
+  /* 2  difficulty-calibrator */ 'difficulty-calibrator'(ability, lastCorrect){
+        let d=Math.round(ability); if(lastCorrect===true)d++; if(lastCorrect===false)d--;
+        return Math.max(1,Math.min(5,d)); },
+  /* 3  mcq-generator         */ 'mcq-generator'({domains, count, ability=3, perDomain=null, random=true}){
+        // Bốc câu MỚI mỗi lần: random=true xáo trộn để mỗi đề khác nhau;
+        // perDomain: số câu lấy mỗi chuyên khoa (vd 2 -> đề cân bằng 26 câu).
+        const target=SKILLS['difficulty-calibrator'](ability,null);
+        const doms=(domains&&domains.length)?domains:DOMAIN_KEYS;
+        const pickFrom=(d)=>{ let qs=BANK.filter(q=>q.domain===d);
+          return random ? shuffle(qs)
+                        : qs.slice().sort((a,b)=>Math.abs((a.diff||3)-target)-Math.abs((b.diff||3)-target)); };
+        if(perDomain){ let out=[]; doms.forEach(d=>{ out=out.concat(pickFrom(d).slice(0,perDomain)); });
+          out=random?shuffle(out):out; return count?out.slice(0,count):out; }
+        const byd={}; doms.forEach(d=>byd[d]=pickFrom(d));
+        const out=[]; let i=0;
+        while(out.length<(count||0)){ let added=false;
+          for(const d of doms){ if(byd[d][i]){ out.push(byd[d][i]); added=true; if(out.length>=count)break; } }
+          if(!added)break; i++; }
+        return random?shuffle(out):out; },
+  /* 4  gap-detector          */ 'gap-detector'(scores){
+        const gaps=[]; DOMAIN_KEYS.forEach(k=>{ const s=scores[k]; if(!s||!s.total)return;
+          const pct=Math.round(s.correct/s.total*100);
+          if(pct<75) gaps.push({domain:k, pct, severity: pct<30?'critical':pct<50?'weak':'developing', link:DOMAINS[k].link}); });
+        return gaps.sort((a,b)=>a.pct-b.pct); },
+  /* 5  radar-builder         */ 'radar-builder'(scores){
+        const rated=DOMAIN_KEYS.map(k=>({k, pct: scores[k]&&scores[k].total?Math.round(scores[k].correct/scores[k].total*100):null})).filter(d=>d.pct!==null);
+        return {labels:rated.map(d=>DOMAINS[d.k].icon), data:rated.map(d=>d.pct), rated}; },
+  /* 6  sm2-scheduler         */ 'sm2-scheduler'(quality, rep, ef){
+        ef=ef+(0.1-(5-quality)*(0.08+(5-quality)*0.02)); if(ef<1.3)ef=1.3;
+        if(quality<3) return {interval:1, ef, rep:0};
+        rep=rep+1; const interval= rep===1?1 : rep===2?3 : Math.round(6*ef);
+        return {interval, ef, rep}; },
+  /* 7  knowledge-retriever   */ 'knowledge-retriever'(domain){
+        const G={ internal:['ACC/AHA','ADA','KDIGO','GOLD'], surgery:['ACS','ATLS'], obgyn:['ACOG'],
+          pediatrics:['AAP','Nelson'], emergency:['ACLS/ATLS','AHA'], psychneuro:['DSM-5-TR','AHA Stroke'],
+          labdx:['CAP','Light criteria'], pathology:['Robbins'], pharmacology:['Katzung','FDA'],
+          physiology:['Guyton'], microbiology:['CDC','IDSA'], biochemistry:['Lippincott','OMIM'], community:['USPSTF','CDC'] };
+        return G[domain]||['USMLE High-Yield']; },
+  /* 8  lesson-composer       */ 'lesson-composer'(domain){
+        const qs=BANK.filter(q=>q.domain===domain), dom=DOMAINS[domain];
+        return { title:`Masterclass: ${dom.name}`, step:dom.step,
+          pathophysiology:`Cơ chế bệnh sinh trọng tâm của ${dom.name}, liên kết nền tảng ${DOMAINS[dom.link]?DOMAINS[dom.link].name:dom.link}.`,
+          algorithm:['Nhận diện hội chứng/triệu chứng chính','Chẩn đoán phân biệt (VINDICATE)','Cận lâm sàng ban đầu vs xác định','Điều trị theo guideline','Theo dõi & biến chứng'],
+          highYield: qs.map(q=>q.exp).slice(0,5), guideline: SKILLS['knowledge-retriever'](domain) }; },
+  /* 9  case-simulator        */ 'case-simulator'(domain){
+        const qs=BANK.filter(q=>q.domain===domain); if(!qs.length)return null;
+        const q=qs[Math.floor(Math.random()*qs.length)];
+        return { domain, phases:[
+          {name:'1. Bệnh sử', prompt:q.vignette},
+          {name:'2. Chẩn đoán phân biệt (VINDICATE)', prompt:'Vascular · Infectious · Neoplastic · Degenerative · Iatrogenic · Congenital · Autoimmune · Traumatic · Endocrine — nhóm nào phù hợp nhất?'},
+          {name:'3. Câu hỏi Socratic', prompt:q.stem},
+          {name:'4. Xét nghiệm: ban đầu vs xác định', prompt:'Chọn cận lâm sàng hợp lý nhất trước khi chốt.'},
+          {name:'5. Chốt & lý giải', prompt:`Đáp án: ${'ABCDE'[q.correct]}. ${q.options[q.correct]} — ${q.exp}`} ] }; },
+  /* 10 daily-briefing        */ 'daily-briefing'(state, gaps){
+        const top=gaps[0];
+        return `Chào ${state.user.name}! Ngày ${state.day} · streak ${state.streak}🔥. `+
+          (top?`Ưu tiên hôm nay: ${DOMAINS[top.domain].icon} ${DOMAINS[top.domain].name} (${top.pct}%). `:'Nền tảng ổn — hôm nay củng cố & nâng cao. ')+
+          `Mục tiêu ${state.user.minutes} phút. Đều tay là tới 250+.`; },
+  /* 11 streak-motivator      */ 'streak-motivator'(state, rated){
+        const B=[ {id:'first',ico:'🎓',name:'Khởi động',cond:()=>true},
+          {id:'streak3',ico:'🔥',name:'3 ngày streak',cond:()=>state.streak>=3},
+          {id:'streak7',ico:'⚡',name:'7 ngày streak',cond:()=>state.streak>=7},
+          {id:'nogap',ico:'🛡️',name:'Không lỗ hổng',cond:()=>rated.length&&rated.every(d=>d.pct>=50)},
+          {id:'master',ico:'🏆',name:'Thành thạo 1 khoa',cond:()=>rated.some(d=>d.pct>=75)},
+          {id:'allmaster',ico:'👑',name:'Bậc thầy 250+',cond:()=>rated.length&&rated.every(d=>d.pct>=75)} ];
+        B.forEach(b=>{ if(!state.badges.includes(b.id)&&b.cond()) state.badges.push(b.id); });
+        return {all:B, unlocked:state.badges.slice()}; },
+  /* 12 notion-sync           */ 'notion-sync'(state){ DB.notion={synced:true, at:Date.now(), day:state.day}; return DB.notion; },
+};
+
+/* ---------- 🤖 7 AGENTS (src/agents/) ---------- */
+const AGENTS = {
+  assessment:{ // AssessmentAgent — tạo đề & chấm thi
+    createDiagnostic(user, opts){ opts=opts||{};
+      // Mặc định: 2 câu/khoa ngẫu nhiên = 26 câu, KHÁC NHAU mỗi lần vào test.
+      const perDomain=opts.perDomain||2;
+      return {type:'diagnostic',
+        questions: SKILLS['mcq-generator']({domains:null, perDomain, count:opts.count||perDomain*DOMAIN_KEYS.length, ability:3, random:true})}; },
+    createDaily(scores, count){
+      const gaps=SKILLS['gap-detector'](scores);
+      const domains=(gaps.length?gaps.map(g=>g.domain):SKILLS['radar-builder'](scores).rated.map(d=>d.k)).slice(0,4);
+      const ability=domains.reduce((a,d)=>a+((scores[d]&&scores[d].total)?scores[d].correct/scores[d].total*5:3),0)/(domains.length||1);
+      let qs=SKILLS['mcq-generator']({domains, count:count||12, ability});
+      if(qs.length<6) qs=SKILLS['mcq-generator']({domains:null, count:12, ability:3});
+      return {type:'daily', questions:qs, focus:domains}; },
+    grade(questions, answers){ let correct=0; const perDom={};
+      questions.forEach(q=>{ if(answers[q.id]===undefined)return;
+        perDom[q.domain]=perDom[q.domain]||{correct:0,total:0}; perDom[q.domain].total++;
+        if(answers[q.id]===q.correct){ correct++; perDom[q.domain].correct++; } });
+      return {correct, perDom}; } },
+  analyst:{ // AnalystAgent — phân tích lỗ hổng
+    analyze(scores){ return {gaps:SKILLS['gap-detector'](scores), radar:SKILLS['radar-builder'](scores)}; } },
+  curriculum:{ // CurriculumAgent — lộ trình SM-2
+    plan(scores, days){ days=days||7;
+      const rated=SKILLS['radar-builder'](scores).rated.slice().sort((a,b)=>a.pct-b.pct);
+      const pool=(rated.filter(d=>d.pct<75).length?rated.filter(d=>d.pct<75):rated);
+      if(!pool.length) return [];
+      const out=[]; let ef=2.5;
+      for(let day=1;day<=days;day++){ const d=pool[(day-1)%pool.length];
+        const quality=Math.round(d.pct/100*5);
+        const s=SKILLS['sm2-scheduler'](quality, Math.floor((day-1)/pool.length), ef); ef=s.ef;
+        const sev=d.pct<30?'critical':d.pct<50?'weak':'developing';
+        out.push({day, domain:d.k, interval:s.interval, link:DOMAINS[d.k].link,
+          task: sev==='critical'?'Masterclass + ca lâm sàng Socratic (lấp lỗ hổng)'
+              : sev==='weak'?'Ôn bài giảng trọng tâm + 8 câu luyện' : 'Củng cố & câu độ khó cao'}); }
+      return out; } },
+  content:{ lesson(domain){ const l=SKILLS['lesson-composer'](domain); DB.lessons.push(l); return l; } },   // ContentAgent
+  mentor:{ case(domain){ return SKILLS['case-simulator'](domain); } },                                        // MentorAgent
+  coach:{ motivate(state, radar){ // CoachAgent
+      const badges=SKILLS['streak-motivator'](state, radar.rated);
+      const briefing=SKILLS['daily-briefing'](state, SKILLS['gap-detector'](state.scores));
+      return {badges, briefing}; } },
+  notion:{ sync(state){ return SKILLS['notion-sync'](state); } },                                             // NotionAgent
+};
+
+/* ---------- 🎼 ORCHESTRATOR (src/agents/orchestrator.js) ---------- */
+const ORCH = {
+  intake(user, count){ return AGENTS.assessment.createDiagnostic(user, count); },
+  submit(questions, answers, scores){
+    const g=AGENTS.assessment.grade(questions, answers);
+    Object.keys(g.perDom).forEach(k=>{ if(!scores[k])scores[k]={correct:0,total:0};
+      scores[k].correct+=g.perDom[k].correct; scores[k].total+=g.perDom[k].total; });
+    return {grade:g, analysis:AGENTS.analyst.analyze(scores)}; },
+  dashboard(state){ const analysis=AGENTS.analyst.analyze(state.scores);
+    return {analysis, plan:AGENTS.curriculum.plan(state.scores),
+            coach:AGENTS.coach.motivate(state, analysis.radar), notion:AGENTS.notion.sync(state)}; },
+  daily(state){ return AGENTS.assessment.createDaily(state.scores, 12); },
+  lesson(domain){ return AGENTS.content.lesson(domain); },
+  case(domain){ return AGENTS.mentor.case(domain); },
+};
+
+/* ---------- utils ---------- */
+const el = id => document.getElementById(id);
+function show(scr){
+  ['scr-onboard','scr-test','scr-results','scr-dash'].forEach(s=>el(s).classList.add('hidden'));
+  el(scr).classList.remove('hidden'); el(scr).classList.add('fade');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toast(msg){
+  const t=el('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2600);
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function statusOf(p){ if(p<30)return{k:'crit',t:'Critical',cls:'st-crit',c:'#f5576c'};
+  if(p<50)return{k:'weak',t:'Yếu',cls:'st-weak',c:'#fbbf24'};
+  if(p<75)return{k:'pass',t:'Đạt',cls:'st-pass',c:'#4facfe'};
+  return{k:'mast',t:'Thành thạo',cls:'st-mast',c:'#43e97b'}; }
+
+/* ---------- PERSISTENCE (localStorage) — nhớ trình độ qua mỗi lần mở ---------- */
+const STORE_KEY='medadapt_progress_v1';
+function saveState(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({
+    user:S.user, scores:S.scores, day:S.day, streak:S.streak, badges:S.badges, savedAt:Date.now()
+  })); }catch(e){}
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORE_KEY); if(!raw) return false;
+    const d=JSON.parse(raw);
+    if(!d || !d.scores || !Object.keys(d.scores).length) return false;
+    if(d.user) S.user=d.user;
+    S.scores=d.scores; S.day=d.day||1; S.streak=d.streak||1; S.badges=d.badges||[];
+    S.analysis=AGENTS.analyst.analyze(S.scores);   // dựng lại phân tích từ điểm đã lưu
+    return true;
+  }catch(e){ return false; }
+}
+function clearState(){ try{ localStorage.removeItem(STORE_KEY); }catch(e){} }
+
+/* ---------- ONBOARDING ---------- */
+function renderOnboard(){
+  el('scr-onboard').innerHTML = `
+  <div class="card">
+    <h2 class="sec">Chào mừng đến MedAdapt 👋</h2>
+    <p class="muted" style="margin-bottom:6px">Hệ thống học thích ứng: bạn làm <b>bài test đầu vào</b>, engine phân tích lỗ hổng rồi tự vạch lộ trình ôn cho riêng bạn.</p>
+    <label class="fld">Họ tên</label>
+    <input class="f" id="in-name" placeholder="VD: BS. Vinh">
+    <label class="fld">Mục tiêu kỳ thi</label>
+    <div class="goalcards" id="goalcards">
+      <div class="goalcard on" data-goal="both">
+        <div class="t">Step 1 &amp; Step 2 CK</div>
+        <div class="tiny">Toàn diện cơ sở + lâm sàng (khuyến nghị)</div></div>
+      <div class="goalcard" data-goal="step1">
+        <div class="t">Chỉ Step 1</div>
+        <div class="tiny">Tập trung khoa học cơ sở</div></div>
+      <div class="goalcard" data-goal="step2">
+        <div class="t">Chỉ Step 2 CK</div>
+        <div class="tiny">Tập trung lâm sàng</div></div>
+      <div class="goalcard" data-goal="review">
+        <div class="t">Ôn tổng lực</div>
+        <div class="tiny">Marathon hướng 250+</div></div>
+    </div>
+    <label class="fld">Thời gian học mỗi ngày (phút)</label>
+    <select class="f" id="in-min">
+      <option value="30">30 phút</option>
+      <option value="60" selected>60 phút</option>
+      <option value="90">90 phút</option>
+      <option value="120">120 phút</option>
+    </select>
+    <div class="divider"></div>
+    <div class="section-head" style="margin:0">
+      <div class="tiny">📋 Bài test đầu vào: <b>26 câu</b> (2/khoa) · bốc ngẫu nhiên từ ngân hàng ${BANK.length} câu · đảo đáp án — <b>mới mỗi lần</b></div>
+      <button class="btn" id="btn-start">Bắt đầu bài test đầu vào →</button>
+    </div>
+  </div>`;
+  el('goalcards').querySelectorAll('.goalcard').forEach(c=>c.onclick=()=>{
+    el('goalcards').querySelectorAll('.goalcard').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on'); S.user.goal=c.dataset.goal;
+  });
+  el('btn-start').onclick=()=>{
+    S.user.name=(el('in-name').value||'Học viên').trim();
+    S.user.minutes=+el('in-min').value;
+    startDiagnostic();
+  };
+}
+
+/* ---------- DIAGNOSTIC TEST ---------- */
+function startDiagnostic(){
+  // ORCHESTRATOR -> AssessmentAgent (mcq-generator: bốc 2 câu/khoa ngẫu nhiên = 26 câu, mới mỗi lần)
+  S.mode='diagnostic'; S.scores={};
+  DB.createUser(S.user);
+  const {questions}=ORCH.intake(S.user);
+  buildAttempt(questions);
+  S.idx=0; S.answers={};
+  renderTest();
+}
+/* Tạo "đề" cho lượt hiện tại: đảo vị trí đáp án A–E (không đụng BANK gốc) */
+function buildAttempt(questions){
+  S.quiz={};
+  questions.forEach(q=>{
+    const idx=shuffle(q.options.map((_,i)=>i));
+    S.quiz[q.id]={...q, options:idx.map(i=>q.options[i]), correct:idx.indexOf(q.correct)};
+  });
+  S.order=questions.map(q=>q.id);
+}
+function currentQ(){ return S.quiz[S.order[S.idx]] || BANK.find(q=>q.id===S.order[S.idx]); }
+
+function renderTest(){
+  show('scr-test');
+  const q=currentQ(), total=S.order.length, n=S.idx+1;
+  const answered=S.answers[q.id]!==undefined;
+  const dom=DOMAINS[q.domain];
+  const stepCls=dom.step===1?'step1':'step2';
+  el('scr-test').innerHTML = `
+  <div class="card">
+    <div class="section-head">
+      <div>
+        <div class="tiny">${S.mode==='diagnostic'?'Bài test đầu vào (Diagnostic)':'Bài test thích ứng hàng ngày'}</div>
+        <div style="font-weight:800;font-size:16px">Câu ${n}/${total}</div>
+      </div>
+      <span class="pill ${stepCls}">${dom.step===1?'STEP 1':'STEP 2 CK'}</span>
+    </div>
+    <div class="pbar" style="margin-bottom:20px"><i style="width:${(n/total)*100}%"></i></div>
+
+    <div class="qmeta">
+      <span class="qdomain">${dom.icon} ${dom.name}</span>
+      <span class="chip">Độ khó ${q.diff}/5</span>
+      <span class="chip">Bloom: ${q.bloom}</span>
+    </div>
+    <div class="vignette">${q.vignette}</div>
+    <div class="stem">${q.stem}</div>
+    <div id="opts"></div>
+    <div id="exp-slot"></div>
+    <div class="navrow">
+      <button class="btn ghost sm" id="btn-prev" ${S.idx===0?'disabled':''}>← Câu trước</button>
+      <div class="tiny" id="ans-count"></div>
+      <button class="btn sm" id="btn-next">${n===total?'Nộp bài & xem phân tích →':'Câu tiếp →'}</button>
+    </div>
+  </div>`;
+
+  const optsBox=el('opts');
+  q.options.forEach((o,i)=>{
+    const d=document.createElement('div');
+    d.className='opt'; d.dataset.i=i;
+    d.innerHTML=`<div class="k">${'ABCDE'[i]}</div><div>${o}</div>`;
+    if(answered){
+      d.classList.add('disabled');
+      if(i===q.correct) d.classList.add('correct');
+      else if(i===S.answers[q.id]) d.classList.add('wrong');
+    }
+    d.onclick=()=>chooseAnswer(i);
+    optsBox.appendChild(d);
+  });
+  if(answered) renderExplain(q);
+  updateAnsCount();
+  el('btn-prev').onclick=()=>{ if(S.idx>0){S.idx--;renderTest();} };
+  el('btn-next').onclick=()=>{
+    if(S.answers[q.id]===undefined){ toast('Hãy chọn một đáp án trước 🙂'); return; }
+    if(n===total) finishTest(); else { S.idx++; renderTest(); }
+  };
+}
+function updateAnsCount(){
+  const done=Object.keys(S.answers).length;
+  const c=el('ans-count'); if(c) c.textContent=`Đã trả lời ${done}/${S.order.length}`;
+}
+function chooseAnswer(i){
+  const q=currentQ();
+  if(S.answers[q.id]!==undefined) return; // lock after answering
+  S.answers[q.id]=i;
+  renderTest();
+}
+function renderExplain(q){
+  const correct=S.answers[q.id]===q.correct;
+  let html=`<div class="explain ${correct?'':'bad'}">
+      <b>${correct?'✅ Chính xác!':'❌ Chưa đúng.'}</b> Đáp án đúng: <b>${'ABCDE'[q.correct]}. ${q.options[q.correct]}</b><br>${q.exp}`;
+  if(!correct && q.link && CROSSLINK_MSG[q.link]){
+    html+=`<div class="link-note">🔗 Liên kết cơ sở–lâm sàng: sai câu này sẽ kích hoạt ôn lại <b>${CROSSLINK_MSG[q.link]}</b>.</div>`;
+  }
+  html+='</div>';
+  el('exp-slot').innerHTML=html;
+}
+
+/* ---------- SCORING & GAP ANALYSIS ---------- */
+function domPct(k){ const s=S.scores[k]; return s&&s.total? Math.round(s.correct/s.total*100) : null; }
+
+function finishTest(){
+  // ORCHESTRATOR -> AssessmentAgent.grade + AnalystAgent.analyze (merges cumulatively)
+  const questions=S.order.map(id=>S.quiz[id]);   // dùng đề đã đảo đáp án của lượt này
+  const {analysis}=ORCH.submit(questions, S.answers, S.scores);
+  S.analysis=analysis;
+  DB.saveSession({mode:S.mode, at:Date.now(), n:questions.length});
+  saveState();  // lưu trình độ tích lũy
+  if(S.mode==='diagnostic') renderResults();
+  else finishDaily();
+}
+
+/* ---------- RESULTS ---------- */
+let radarChart=null;
+function renderResults(){
+  show('scr-results');
+  // cumulative tally from AnalystAgent scores (consistent across diagnostic + dailies)
+  let totalCorrect=0, answered=0;
+  DOMAIN_KEYS.forEach(k=>{ if(S.scores[k]){ totalCorrect+=S.scores[k].correct; answered+=S.scores[k].total; } });
+  const overall=answered?Math.round(totalCorrect/answered*100):0;
+  // AnalystAgent output (gap-detector + radar-builder)
+  const rated=S.analysis.radar.rated.slice();
+  const gaps=S.analysis.gaps.filter(g=>g.pct<50).map(g=>({k:g.domain,pct:g.pct,link:g.link}));
+  const est=Math.round(120+overall*1.35); // rough USMLE-style 3-digit estimate
+
+  el('scr-results').innerHTML=`
+  <div class="card">
+    <h2 class="sec">📊 Phân tích bài test đầu vào — ${S.user.name}</h2>
+    <p class="muted">Engine đã chấm ${answered} câu, dựng bản đồ năng lực 13 chuyên khoa và phát hiện lỗ hổng ưu tiên.</p>
+    <div class="statgrid">
+      <div class="stat"><div class="n" style="color:${statusOf(overall).c}">${overall}%</div><div class="l">Điểm tổng</div></div>
+      <div class="stat"><div class="n">${totalCorrect}/${answered}</div><div class="l">Câu đúng</div></div>
+      <div class="stat"><div class="n" style="color:#7dd3fc">~${est}</div><div class="l">Ước lượng điểm (3 chữ số)*</div></div>
+      <div class="stat"><div class="n" style="color:${gaps.length?'#f5576c':'#43e97b'}">${gaps.length}</div><div class="l">Lỗ hổng cần ôn</div></div>
+    </div>
+
+    <div class="two">
+      <div class="card" style="background:var(--bg-card)">
+        <h2 class="sec" style="font-size:16px">🎯 Bản đồ năng lực (Radar 13 chuyên khoa)</h2>
+        <canvas id="radar" height="300"></canvas>
+        <div class="legend">
+          <span><i class="dot" style="background:#f5576c"></i>Critical &lt;30%</span>
+          <span><i class="dot" style="background:#fbbf24"></i>Yếu &lt;50%</span>
+          <span><i class="dot" style="background:#4facfe"></i>Đạt &lt;75%</span>
+          <span><i class="dot" style="background:#43e97b"></i>Thành thạo ≥75%</span>
+        </div>
+      </div>
+      <div class="card" style="background:var(--bg-card)">
+        <h2 class="sec" style="font-size:16px">📋 Chi tiết theo chuyên khoa</h2>
+        <div class="domlist" id="domlist"></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <h2 class="sec" style="font-size:16px">🔗 Lỗ hổng ưu tiên & liên kết cơ sở–lâm sàng</h2>
+    <div id="gapbox"></div>
+
+    <div class="section-head" style="margin-top:22px">
+      <div class="tiny">*Ước lượng chỉ mang tính tham khảo dựa trên bài test ngắn, không thay thế đề thi chuẩn.</div>
+      <button class="btn" id="btn-dash">Tạo lộ trình thích ứng của tôi →</button>
+    </div>
+  </div>`;
+
+  // domain list
+  const dl=el('domlist');
+  rated.sort((a,b)=>a.pct-b.pct).forEach(d=>{
+    const st=statusOf(d.pct), dom=DOMAINS[d.k];
+    const row=document.createElement('div'); row.className='domrow';
+    row.innerHTML=`<span class="ico">${dom.icon}</span>
+      <span class="nm">${dom.name}</span>
+      <span class="barwrap"><i style="width:${d.pct}%;background:${st.c}"></i></span>
+      <span class="pct" style="color:${st.c}">${d.pct}%</span>
+      <span class="status-tag ${st.cls}">${st.t}</span>`;
+    dl.appendChild(row);
+  });
+
+  // gaps + crosslink
+  const gb=el('gapbox');
+  if(!gaps.length){
+    gb.innerHTML=`<div class="explain">🎉 Không có chuyên khoa nào dưới 50%. Nền tảng tốt — engine sẽ chuyển sang chế độ củng cố & nâng cao (hướng thành thạo ≥75%).</div>`;
+  }else{
+    gb.innerHTML=gaps.map((d,i)=>{
+      const dom=DOMAINS[d.k], st=statusOf(d.pct);
+      const link=d.link;
+      return `<div class="plan-item">
+        <div class="day" style="background:${st.c}">#${i+1}</div>
+        <div class="body">
+          <div class="h">${dom.icon} ${dom.name} — <span style="color:${st.c}">${d.pct}% (${st.t})</span></div>
+          <div class="tiny">Ưu tiên ${st.k==='crit'?'KHẨN CẤP — ôn ngay trong ngày':'cao — đưa vào lịch tuần này'}.
+          ${link?`🔗 Kích hoạt ôn liên môn: <b>${CROSSLINK_MSG[link]||DOMAINS[link].name}</b>.`:''}</div>
+        </div></div>`;
+    }).join('');
+  }
+
+  buildRadar(rated);
+  el('btn-dash').onclick=renderDashboard;
+}
+function buildRadar(rated){
+  const ctx=el('radar');
+  const labels=rated.map(d=>DOMAINS[d.k].icon);
+  const data=rated.map(d=>d.pct);
+  if(radarChart) radarChart.destroy();
+  radarChart=new Chart(ctx,{
+    type:'radar',
+    data:{labels,datasets:[{
+      label:'Năng lực (%)', data,
+      backgroundColor:'rgba(79,172,254,.18)', borderColor:'#4facfe',
+      pointBackgroundColor:data.map(p=>statusOf(p).c), pointBorderColor:'#fff',
+      pointRadius:4, borderWidth:2
+    }]},
+    options:{
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{title:(it)=>{const d=rated[it[0].dataIndex];return DOMAINS[d.k].name;},
+          label:(it)=>' '+it.formattedValue+'%'}}},
+      scales:{r:{min:0,max:100,ticks:{stepSize:25,color:'rgba(232,234,246,.4)',backdropColor:'transparent',font:{size:9}},
+        grid:{color:'rgba(255,255,255,.08)'}, angleLines:{color:'rgba(255,255,255,.08)'},
+        pointLabels:{color:'#e8eaf6',font:{size:16}}}}
+    }
+  });
+}
+
+/* ---------- ADAPTIVE DASHBOARD ---------- */
+function renderDashboard(){
+  show('scr-dash');
+  // ORCHESTRATOR -> Analyst + Curriculum + Coach + Notion
+  const {analysis, plan, coach, notion}=ORCH.dashboard(S);
+  const rated=analysis.radar.rated.slice().sort((a,b)=>a.pct-b.pct);
+  const weak=rated.filter(d=>d.pct<75);
+
+  el('scr-dash').innerHTML=`
+  <div class="card">
+    <div class="section-head">
+      <div>
+        <h2 class="sec">🚀 Lộ trình thích ứng của ${S.user.name}</h2>
+        <p class="muted" style="margin:0">Ngày ${S.day} · mục tiêu ${goalLabel()} · ${S.user.minutes} phút/ngày</p>
+      </div>
+      <div class="streakbig"><span class="fire">🔥</span><div><div class="n">${S.streak}</div><div class="tiny">ngày streak</div></div></div>
+    </div>
+
+    <div class="explain" style="margin-bottom:18px">☀️ <b>Bản tin sáng (CoachAgent):</b> ${coach.briefing}</div>
+
+    <div class="dashgrid">
+      <div>
+        <div class="card" style="background:var(--bg-card);margin-bottom:18px">
+          <h2 class="sec" style="font-size:16px">📅 Lịch ôn 7 ngày (CurriculumAgent · Modified SM-2)</h2>
+          <p class="tiny" style="margin-bottom:12px">Engine ưu tiên chuyên khoa yếu nhất, giãn cách theo mức nắm vững.</p>
+          <div id="planbox"></div>
+        </div>
+
+        <div class="card" style="background:var(--bg-card)">
+          <h2 class="sec" style="font-size:16px">⚡ Bài test thích ứng hôm nay (AssessmentAgent)</h2>
+          <p class="tiny" id="daily-desc"></p>
+          <button class="btn" id="btn-daily" style="margin-top:12px">Làm bài test hôm nay →</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="background:var(--bg-card);margin-bottom:18px">
+          <h2 class="sec" style="font-size:16px">🎯 Trọng tâm ưu tiên</h2>
+          <p class="tiny" style="margin-bottom:10px">Bấm một khoa để ContentAgent soạn Masterclass & MentorAgent mở ca lâm sàng.</p>
+          <div class="domlist" id="focuslist"></div>
+          <div id="lessonbox" style="margin-top:12px"></div>
+        </div>
+        <div class="card" style="background:var(--bg-card)">
+          <h2 class="sec" style="font-size:16px">🏆 Huy hiệu</h2>
+          <div id="badgebox"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top:20px">
+      <div class="tiny">☁️ NotionAgent: ${notion.synced?`đã đồng bộ tiến trình (ngày ${notion.day})`:'chưa đồng bộ'} · 🤖 7 agent · ⚡ 12 skill đang chạy</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn ghost sm" id="btn-review">↺ Xem lại phân tích</button>
+        <button class="btn ghost sm" id="btn-restart">Làm lại từ đầu</button>
+      </div>
+    </div>
+  </div>`;
+
+  // plan (CurriculumAgent output uses .domain)
+  el('planbox').innerHTML = plan.length ? plan.map(p=>`
+    <div class="plan-item">
+      <div class="day">Ngày<br>${p.day}</div>
+      <div class="body">
+        <div class="h">${DOMAINS[p.domain].icon} ${DOMAINS[p.domain].name}</div>
+        <div class="tiny">${p.task} · giãn cách SM-2: <b>${p.interval} ngày</b>${p.link?` · 🔗 kèm ${CROSSLINK_MSG[p.link]||DOMAINS[p.link].name}`:''}</div>
+      </div>
+    </div>`).join('')
+    : `<div class="explain">🎉 Mọi chuyên khoa ≥75% — chuyển sang chế độ củng cố & nâng cao.</div>`;
+
+  // focus list (clickable -> Content/Mentor)
+  const fl=el('focuslist');
+  (weak.length?weak:rated).slice(0,6).forEach(d=>{
+    const st=statusOf(d.pct),dom=DOMAINS[d.k];
+    const row=document.createElement('div');row.className='domrow';row.style.cursor='pointer';
+    row.innerHTML=`<span class="ico">${dom.icon}</span><span class="nm">${dom.name}</span>
+      <span class="barwrap"><i style="width:${d.pct}%;background:${st.c}"></i></span>
+      <span class="pct" style="color:${st.c}">${d.pct}%</span>`;
+    row.onclick=()=>showLesson(d.k);
+    fl.appendChild(row);
+  });
+
+  // daily desc
+  const dailyDomains=(weak.length?weak:rated).slice(0,4).map(d=>DOMAINS[d.k].name).join(', ');
+  el('daily-desc').textContent=`12 câu nhắm vào lỗ hổng: ${dailyDomains}. Làm xong, radar và lịch sẽ tự cập nhật.`;
+
+  // badges (CoachAgent -> streak-motivator)
+  el('badgebox').innerHTML = coach.badges.all.map(b=>{
+    const on=coach.badges.unlocked.includes(b.id);
+    return `<span class="badge ${on?'':'locked'}">${b.ico} ${b.name}${on?'':' 🔒'}</span>`;
+  }).join('');
+
+  el('btn-daily').onclick=startDaily;
+  el('btn-review').onclick=renderResults;
+  el('btn-restart').onclick=()=>{clearState();S.day=1;S.streak=1;S.badges=[];S.scores={};renderOnboard();show('scr-onboard');};
+  saveState();  // lưu badges/streak/ngày sau khi dashboard cập nhật
+}
+function goalLabel(){return {both:'Step 1 & 2 CK',step1:'Step 1',step2:'Step 2 CK',review:'Ôn tổng lực 250+'}[S.user.goal];}
+
+/* ContentAgent (lesson-composer + knowledge-retriever) + MentorAgent (case-simulator) */
+function showLesson(domain){
+  const box=el('lessonbox'); if(!box) return;
+  const les=ORCH.lesson(domain);      // ContentAgent
+  const cas=ORCH.case(domain);        // MentorAgent
+  const dom=DOMAINS[domain];
+  box.innerHTML=`
+    <div class="card" style="background:rgba(79,172,254,.06);border-color:rgba(79,172,254,.2)">
+      <div class="section-head" style="margin-bottom:8px">
+        <h2 class="sec" style="font-size:15px">${dom.icon} ${les.title}</h2>
+        <span class="chip">Step ${les.step} · 📚 ${les.guideline.join(', ')}</span>
+      </div>
+      <div class="tiny" style="margin-bottom:8px"><b>Sinh lý bệnh:</b> ${les.pathophysiology}</div>
+      <div class="tiny" style="margin-bottom:4px"><b>Tiếp cận:</b> ${les.algorithm.map((s,i)=>`${i+1}) ${s}`).join(' → ')}</div>
+      <div class="tiny" style="margin:8px 0 4px"><b>High-yield:</b></div>
+      <ul style="margin:0 0 8px 18px;padding:0;font-size:12px;color:var(--text-secondary)">
+        ${les.highYield.map(h=>`<li style="margin-bottom:4px">${h}</li>`).join('')}
+      </ul>
+      <div class="divider" style="margin:10px 0"></div>
+      <div class="tiny" style="margin-bottom:6px"><b>🩺 Ca lâm sàng Socratic (VINDICATE) — MentorAgent:</b></div>
+      ${cas?cas.phases.map(p=>`<div class="tiny" style="margin-bottom:5px"><b style="color:var(--text-accent)">${p.name}:</b> ${p.prompt}</div>`).join(''):''}
+    </div>`;
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ---------- DAILY ADAPTIVE TEST ---------- */
+function startDaily(){
+  // ORCHESTRATOR -> AssessmentAgent.createDaily (gap-detector weighted mcq-generator, ngẫu nhiên)
+  const {questions, focus}=ORCH.daily(S);
+  S.dailyFocus=focus;
+  S.mode='daily'; buildAttempt(questions); S.idx=0; S.answers={};
+  renderTest();
+}
+function finishDaily(){
+  S.day++; S.streak++;
+  // today's score = only the questions answered in this daily session
+  let tc=0,tt=0;
+  S.order.forEach(id=>{ const q=S.quiz[id];
+    if(S.answers[q.id]===undefined) return; tt++; if(S.answers[q.id]===q.correct) tc++; });
+  const pct=tt?Math.round(tc/tt*100):0;
+  renderDashboard();  // CoachAgent re-evaluates badges/streak inside
+  toast(`🔥 Streak +1! Bài hôm nay: ${tc}/${tt} đúng (${pct}%)`);
+}
+
+/* Huy hiệu do CoachAgent (skill streak-motivator) quản lý trong engine. */
+
+/* ---------- BOOT ---------- */
+if(loadState()){
+  renderDashboard();                       // có tiến trình cũ -> vào thẳng dashboard theo trình độ
+  toast(`👋 Chào mừng trở lại! Ngày ${S.day} · streak ${S.streak}🔥`);
+}else{
+  renderOnboard();
+}
+</script>
+</body>
+</html>

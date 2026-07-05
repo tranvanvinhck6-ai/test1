@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedAdapt — Hệ thống Học Y khoa Thích ứng</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩺</text></svg>">
+</head>
+<body>
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TOAST CONTAINER                             -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="toast-container"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- LOADING OVERLAY                             -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loader-content">
+            <div class="pulse-loader">
+                <span></span><span></span><span></span>
+            </div>
+            <p>Đang tải dữ liệu...</p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SIDEBAR NAVIGATION                          -->
+    <!-- ═══════════════════════════════════════════ -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 40 40" fill="none">
+                    <rect width="40" height="40" rx="12" fill="url(#brandGrad)"/>
+                    <path d="M20 10v20M10 20h20" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+                    <defs><linearGradient id="brandGrad" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#667eea"/><stop offset="1" stop-color="#764ba2"/></linearGradient></defs>
+                </svg>
+            </div>
+            <span class="brand-text">MedAdapt</span>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item" data-route="dashboard">
+                <a href="#/dashboard" class="nav-link">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    <span>Tổng quan</span>
+                </a>
+            </li>
+            <li class="nav-item" data-route="test">
+                <a href="#/test" class="nav-link">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                    <span>Kiểm tra</span>
+                </a>
+            </li>
+            <li class="nav-item" data-route="tracker">
+                <a href="#/tracker" class="nav-link">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                    <span>Năng lực</span>
+                </a>
+            </li>
+            <li class="nav-item" data-route="lesson">
+                <a href="#/lesson" class="nav-link">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                    <span>Bài học</span>
+                </a>
+            </li>
+            <li class="nav-item" data-route="mentor">
+                <a href="#/mentor" class="nav-link" style="position: relative;">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/><path d="M12 7v4M10 9h4"/></svg>
+                    <span>Cố vấn Socratic</span>
+                    <span class="badge-new" style="position: absolute; right: 8px; top: 8px; background: linear-gradient(135deg, #00f2fe, #4facfe); color: #000; font-size: 9px; padding: 1px 5px; border-radius: 8px; font-weight: 700;">AI</span>
+                </a>
+            </li>
+            <li class="nav-item" data-route="progress">
+                <a href="#/progress" class="nav-link">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+                    <span>Tiến độ</span>
+                </a>
+            </li>
+            <li class="nav-item" data-route="settings">
+                <a href="#/settings" class="nav-link">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                    <span>Cài đặt</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-mini" id="sidebar-user">
+                <div class="user-avatar-sm">
+                    <span id="sidebar-avatar-letter">V</span>
+                </div>
+                <div class="user-info-sm">
+                    <span class="user-name-sm" id="sidebar-username">Bác sĩ</span>
+                    <span class="user-role-sm" id="sidebar-specialty">Chuyên khoa</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MOBILE HEADER                               -->
+    <!-- ═══════════════════════════════════════════ -->
+    <header class="mobile-header" id="mobile-header">
+        <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="mobile-brand">
+            <span class="brand-icon-sm">✚</span> MedAdapt
+        </div>
+        <div class="mobile-avatar" id="mobile-avatar">V</div>
+    </header>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MAIN CONTENT AREA                           -->
+    <!-- ═══════════════════════════════════════════ -->
+    <main id="main-content" class="main-content">
+
+        <!-- ════════════════ ONBOARDING ════════════════ -->
+        <section id="page-onboarding" class="page page-onboarding hidden">
+            <div class="onboarding-container">
+                <div class="onboarding-header">
+                    <div class="onboarding-logo">
+                        <div class="logo-pulse">
+                            <svg viewBox="0 0 60 60" fill="none">
+                                <rect width="60" height="60" rx="16" fill="url(#onbGrad)"/>
+                                <path d="M30 15v30M15 30h30" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+                                <defs><linearGradient id="onbGrad" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#667eea"/><stop offset="1" stop-color="#764ba2"/></linearGradient></defs>
+                            </svg>
+                        </div>
+                    </div>
+                    <h1 class="onboarding-title">Chào mừng đến MedAdapt</h1>
+                    <p class="onboarding-subtitle">Hệ thống học tập y khoa thích ứng dành riêng cho bạn</p>
+                </div>
+
+                <!-- Progress Dots -->
+                <div class="onboarding-progress">
+                    <div class="progress-dot active" data-step="1"><span>1</span></div>
+                    <div class="progress-line"><div class="progress-line-fill" id="onb-line-1"></div></div>
+                    <div class="progress-dot" data-step="2"><span>2</span></div>
+                    <div class="progress-line"><div class="progress-line-fill" id="onb-line-2"></div></div>
+                    <div class="progress-dot" data-step="3"><span>3</span></div>
+                    <div class="progress-line"><div class="progress-line-fill" id="onb-line-3"></div></div>
+                    <div class="progress-dot" data-step="4"><span>4</span></div>
+                </div>
+
+                <!-- Step 1: Personal Info -->
+                <div class="onboarding-step active" data-step="1">
+                    <div class="step-card glass-card">
+                        <div class="step-icon">👋</div>
+                        <h2>Thông tin cá nhân</h2>
+                        <p class="step-desc">Hãy cho chúng tôi biết về bạn</p>
+                        <div class="form-group">
+                            <label for="onb-name">Họ và tên</label>
+                            <input type="text" id="onb-name" class="form-input" placeholder="Nguyễn Văn A">
+                        </div>
+                        <div class="form-group">
+                            <label for="onb-email">Email</label>
+                            <input type="email" id="onb-email" class="form-input" placeholder="email@example.com">
+                        </div>
+                        <button class="btn btn-primary btn-block" onclick="MedAdapt.onboarding.nextStep()">
+                            Tiếp tục <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Specialty -->
+                <div class="onboarding-step" data-step="2">
+                    <div class="step-card glass-card">
+                        <div class="step-icon">🏥</div>
+                        <h2>Chuyên khoa</h2>
+                        <p class="step-desc">Chọn chuyên khoa của bạn</p>
+                        <div class="form-group">
+                            <label for="onb-specialty">Chuyên khoa</label>
+                            <select id="onb-specialty" class="form-select">
+                                <option value="">— Chọn chuyên khoa —</option>
+                                <option value="internal_medicine">Nội khoa</option>
+                                <option value="surgery">Ngoại khoa</option>
+                                <option value="pediatrics">Nhi khoa</option>
+                                <option value="obstetrics_gynecology">Sản phụ khoa</option>
+                                <option value="cardiology">Tim mạch</option>
+                                <option value="neurology">Thần kinh</option>
+                                <option value="orthopedics">Chấn thương chỉnh hình</option>
+                                <option value="dermatology">Da liễu</option>
+                                <option value="ophthalmology">Nhãn khoa</option>
+                                <option value="ent">Tai Mũi Họng</option>
+                                <option value="psychiatry">Tâm thần</option>
+                                <option value="radiology">Chẩn đoán hình ảnh</option>
+                                <option value="anesthesiology">Gây mê hồi sức</option>
+                                <option value="emergency_medicine">Cấp cứu</option>
+                                <option value="family_medicine">Y học gia đình</option>
+                                <option value="oncology">Ung thư</option>
+                                <option value="nephrology">Thận học</option>
+                                <option value="pulmonology">Hô hấp</option>
+                                <option value="gastroenterology">Tiêu hóa</option>
+                                <option value="endocrinology">Nội tiết</option>
+                                <option value="infectious_disease">Truyền nhiễm</option>
+                                <option value="general_practice">Đa khoa</option>
+                            </select>
+                        </div>
+                        <div class="step-actions">
+                            <button class="btn btn-ghost" onclick="MedAdapt.onboarding.prevStep()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Quay lại
+                            </button>
+                            <button class="btn btn-primary" onclick="MedAdapt.onboarding.nextStep()">
+                                Tiếp tục <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Experience -->
+                <div class="onboarding-step" data-step="3">
+                    <div class="step-card glass-card">
+                        <div class="step-icon">📋</div>
+                        <h2>Kinh nghiệm</h2>
+                        <p class="step-desc">Trình độ và kinh nghiệm hiện tại</p>
+                        <div class="form-group">
+                            <label for="onb-experience">Số năm kinh nghiệm: <span id="exp-value" class="accent-text">1</span> năm</label>
+                            <input type="range" id="onb-experience" class="form-range" min="0" max="30" value="1" oninput="document.getElementById('exp-value').textContent=this.value">
+                            <div class="range-labels">
+                                <span>0</span><span>5</span><span>10</span><span>15</span><span>20</span><span>25</span><span>30</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Cấp bậc hiện tại</label>
+                            <div class="level-cards">
+                                <label class="level-card">
+                                    <input type="radio" name="onb-level" value="intern">
+                                    <div class="level-card-inner">
+                                        <span class="level-emoji">🎓</span>
+                                        <span class="level-label">Thực tập sinh</span>
+                                    </div>
+                                </label>
+                                <label class="level-card">
+                                    <input type="radio" name="onb-level" value="resident" checked>
+                                    <div class="level-card-inner">
+                                        <span class="level-emoji">👨‍⚕️</span>
+                                        <span class="level-label">Bác sĩ nội trú</span>
+                                    </div>
+                                </label>
+                                <label class="level-card">
+                                    <input type="radio" name="onb-level" value="specialist">
+                                    <div class="level-card-inner">
+                                        <span class="level-emoji">⭐</span>
+                                        <span class="level-label">Chuyên khoa</span>
+                                    </div>
+                                </label>
+                                <label class="level-card">
+                                    <input type="radio" name="onb-level" value="consultant">
+                                    <div class="level-card-inner">
+                                        <span class="level-emoji">🏆</span>
+                                        <span class="level-label">Chuyên gia</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="step-actions">
+                            <button class="btn btn-ghost" onclick="MedAdapt.onboarding.prevStep()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Quay lại
+                            </button>
+                            <button class="btn btn-primary" onclick="MedAdapt.onboarding.nextStep()">
+                                Tiếp tục <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Goals -->
+                <div class="onboarding-step" data-step="4">
+                    <div class="step-card glass-card">
+                        <div class="step-icon">🎯</div>
+                        <h2>Mục tiêu học tập</h2>
+                        <p class="step-desc">Bạn muốn đạt được điều gì?</p>
+                        <div class="goals-grid">
+                            <label class="goal-card">
+                                <input type="checkbox" name="onb-goals" value="board_exam">
+                                <div class="goal-card-inner">
+                                    <span class="goal-icon">📝</span>
+                                    <span class="goal-label">Thi chứng chỉ</span>
+                                    <span class="goal-desc">Chuẩn bị kỳ thi chuyên khoa</span>
+                                </div>
+                            </label>
+                            <label class="goal-card">
+                                <input type="checkbox" name="onb-goals" value="skill_improvement">
+                                <div class="goal-card-inner">
+                                    <span class="goal-icon">💪</span>
+                                    <span class="goal-label">Nâng cao kỹ năng</span>
+                                    <span class="goal-desc">Cải thiện năng lực lâm sàng</span>
+                                </div>
+                            </label>
+                            <label class="goal-card">
+                                <input type="checkbox" name="onb-goals" value="knowledge_update">
+                                <div class="goal-card-inner">
+                                    <span class="goal-icon">📚</span>
+                                    <span class="goal-label">Cập nhật kiến thức</span>
+                                    <span class="goal-desc">Theo dõi tiến bộ y khoa</span>
+                                </div>
+                            </label>
+                            <label class="goal-card">
+                                <input type="checkbox" name="onb-goals" value="research">
+                                <div class="goal-card-inner">
+                                    <span class="goal-icon">🔬</span>
+                                    <span class="goal-label">Nghiên cứu</span>
+                                    <span class="goal-desc">Tham gia nghiên cứu khoa học</span>
+                                </div>
+                            </label>
+                            <label class="goal-card">
+                                <input type="checkbox" name="onb-goals" value="teaching">
+                                <div class="goal-card-inner">
+                                    <span class="goal-icon">🎓</span>
+                                    <span class="goal-label">Giảng dạy</span>
+                                    <span class="goal-desc">Phát triển kỹ năng sư phạm</span>
+                                </div>
+                            </label>
+                            <label class="goal-card">
+                                <input type="checkbox" name="onb-goals" value="patient_care">
+                                <div class="goal-card-inner">
+                                    <span class="goal-icon">❤️</span>
+                                    <span class="goal-label">Chăm sóc bệnh nhân</span>
+                                    <span class="goal-desc">Nâng cao chất lượng điều trị</span>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="step-actions">
+                            <button class="btn btn-ghost" onclick="MedAdapt.onboarding.prevStep()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Quay lại
+                            </button>
+                            <button class="btn btn-primary btn-glow" onclick="MedAdapt.onboarding.submit()">
+                                🚀 Bắt đầu hành trình
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════ DASHBOARD ════════════════ -->
+        <section id="page-dashboard" class="page hidden">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title" id="dashboard-greeting">Xin chào, Bác sĩ! 👋</h1>
+                    <p class="page-subtitle">Hãy tiếp tục hành trình học tập hôm nay</p>
+                </div>
+                <div class="header-actions" style="display:flex; gap:1rem; align-items:center;">
+                    <div class="streak-badge" id="ai-model-badge" style="background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2)); border-color: rgba(0,242,254,0.4); cursor:pointer;" onclick="window.location.hash='#/settings'" title="Bấm để nâng cấp Model AI">
+                        <span>🤖</span>
+                        <span id="active-ai-model" style="font-weight:600; color:#00f2fe;">Gemini 2.5 Pro</span>
+                    </div>
+                    <div class="streak-badge" id="streak-badge">
+                        <span class="streak-fire">🔥</span>
+                        <span class="streak-count" id="streak-count">0</span>
+                        <span class="streak-label">ngày liên tục</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USMLE Closed-Loop Adaptive Framework Widget -->
+            <div class="glass-card closed-loop-widget" style="margin-bottom: 1.5rem; padding: 1.5rem; border: 1px solid rgba(0, 242, 254, 0.3); background: linear-gradient(135deg, rgba(10, 14, 39, 0.8), rgba(118, 75, 162, 0.15)); border-radius: 16px; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(0, 242, 254, 0.2) 0%, transparent 70%); pointer-events: none;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.2rem;">
+                    <div>
+                        <span style="background: linear-gradient(135deg, #00f2fe, #4facfe); color: #000; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;">USMLE Step 1 & Step 2 CK</span>
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin: 0.4rem 0 0.2rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🔄 Vòng Lặp Học Tập Thích Ứng Khép Kín (Closed-Loop Workflow)</span>
+                        </h3>
+                        <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">Mô hình học tập cá nhân hóa: Kiểm tra đầu vào $\rightarrow$ Cập nhật Tracker $\rightarrow$ Lịch ôn SM-2 $\rightarrow$ Tác động mục tiêu.</p>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <a href="#/test" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #667eea, #764ba2); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">
+                            <span>📝 Làm Test Đầu Vào</span>
+                        </a>
+                        <a href="#/mentor" class="btn btn-outline btn-sm" style="border-color: #00f2fe; color: #00f2fe;">
+                            <span>🧠 Cố Vấn Socratic</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Stepper Visual -->
+                <div class="loop-stepper" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8rem; text-align: center; margin-top: 1rem;">
+                    <div class="loop-step" style="background: rgba(255, 255, 255, 0.03); padding: 0.8rem; border-radius: 10px; border-left: 3px solid #667eea;">
+                        <div style="font-size: 1.4rem; margin-bottom: 0.3rem;">📝</div>
+                        <div style="font-weight: 600; font-size: 0.9rem; color: #fff;">1. Test Đầu Vào</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">Đánh giá thực lực 13 chuyên khoa</div>
+                    </div>
+                    <div class="loop-step" style="background: rgba(255, 255, 255, 0.03); padding: 0.8rem; border-radius: 10px; border-left: 3px solid #764ba2;">
+                        <div style="font-size: 1.4rem; margin-bottom: 0.3rem;">📊</div>
+                        <div style="font-weight: 600; font-size: 0.9rem; color: #fff;">2. Cập Nhật Tracker</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">Hồ sơ EMA & Ma trận liên môn</div>
+                    </div>
+                    <div class="loop-step" style="background: rgba(255, 255, 255, 0.03); padding: 0.8rem; border-radius: 10px; border-left: 3px solid #00f2fe;">
+                        <div style="font-size: 1.4rem; margin-bottom: 0.3rem;">🎯</div>
+                        <div style="font-weight: 600; font-size: 0.9rem; color: #fff;">3. Thuật Toán SM-2</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">Phát hiện lỗ hổng & ưu tiên ôn</div>
+                    </div>
+                    <div class="loop-step" style="background: rgba(255, 255, 255, 0.03); padding: 0.8rem; border-radius: 10px; border-left: 3px solid #4facfe;">
+                        <div style="font-size: 1.4rem; margin-bottom: 0.3rem;">🧠</div>
+                        <div style="font-weight: 600; font-size: 0.9rem; color: #fff;">4. Tác Động Mục Tiêu</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">Bài giảng & Cố vấn Socratic</div>
+                    </div>
+                    <div class="loop-step" style="background: rgba(255, 255, 255, 0.03); padding: 0.8rem; border-radius: 10px; border-left: 3px solid #43e97b;">
+                        <div style="font-size: 1.4rem; margin-bottom: 0.3rem;">📈</div>
+                        <div style="font-weight: 600; font-size: 0.9rem; color: #fff;">5. Chuẩn Passing</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">Chinh phục mục tiêu 250+</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-grid">
+                <div class="stat-card glass-card" data-aos="fade-up" style="--delay:0">
+                    <div class="stat-icon stat-icon-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-total-score" data-count="0">0</span>
+                        <span class="stat-label">Điểm tổng</span>
+                    </div>
+                    <div class="stat-trend up">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/></svg>
+                        <span>+5%</span>
+                    </div>
+                </div>
+                <div class="stat-card glass-card" data-aos="fade-up" style="--delay:1">
+                    <div class="stat-icon stat-icon-warning">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-streak" data-count="0">0</span>
+                        <span class="stat-label">Ngày streak</span>
+                    </div>
+                    <div class="stat-trend up">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/></svg>
+                        <span>Tiếp tục!</span>
+                    </div>
+                </div>
+                <div class="stat-card glass-card" data-aos="fade-up" style="--delay:2">
+                    <div class="stat-icon stat-icon-success">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-tests-done" data-count="0">0</span>
+                        <span class="stat-label">Bài kiểm tra</span>
+                    </div>
+                    <div class="stat-trend neutral">
+                        <span>Tổng cộng</span>
+                    </div>
+                </div>
+                <div class="stat-card glass-card" data-aos="fade-up" style="--delay:3">
+                    <div class="stat-icon stat-icon-info">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-domains-mastered" data-count="0">0</span>
+                        <span class="stat-label">Lĩnh vực thành thạo</span>
+                    </div>
+                    <div class="stat-trend neutral">
+                        <span>/ 7 lĩnh vực</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adaptive Loop Cycle Banner -->
+            <div style="background: linear-gradient(135deg, rgba(0, 242, 254, 0.12), rgba(79, 172, 254, 0.18)); border: 1px solid #00f2fe; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 4px 20px rgba(0, 242, 254, 0.15);">
+                <div>
+                    <h4 style="color: #00f2fe; margin: 0 0 0.4rem 0; display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem;">
+                        <span>🔄 Vòng lặp Thích ứng USMLE: 1️⃣ Học ➔ 2️⃣ Test ➔ 3️⃣ Update</span>
+                    </h4>
+                    <p style="margin: 0; font-size: 0.95rem; color: #cbd5e1; line-height: 1.5;">
+                        • <strong>1️⃣ Học (Learn):</strong> Cập nhật bài học lý thuyết & lâm sàng trọng tâm theo điểm yếu nhất.<br>
+                        • <strong>2️⃣ Test:</strong> Làm bài kiểm tra thích ứng AI để chứng thực sự tiến bộ.<br>
+                        • <strong>3️⃣ Update:</strong> AI tự động chấm điểm, điều chỉnh độ khó và tối ưu Tracker của bạn!
+                    </p>
+                </div>
+                <a href="#/test" class="btn btn-primary btn-glow" style="background: linear-gradient(135deg, #00f2fe, #4facfe); font-weight: 600; white-space: nowrap; padding: 0.8rem 1.5rem;">⚡ Vào bài Test ngay</a>
+            </div>
+
+            <!-- Main Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Radar Chart -->
+                <div class="glass-card card-radar">
+                    <div class="card-header">
+                        <h3 class="card-title">Biểu đồ Năng lực</h3>
+                        <span class="card-badge">Cập nhật hôm nay</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="dashboard-radar-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Today's Plan -->
+                <div class="glass-card card-plan">
+                    <div class="card-header">
+                        <h3 class="card-title">📅 Kế hoạch hôm nay</h3>
+                    </div>
+                    <div class="plan-list" id="today-plan-list">
+                        <div class="plan-item">
+                            <div class="plan-check">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                            </div>
+                            <div class="plan-info">
+                                <span class="plan-title">Bài kiểm tra hàng ngày</span>
+                                <span class="plan-meta">15 câu hỏi • ~20 phút</span>
+                            </div>
+                            <a href="#/test" class="btn btn-sm btn-primary">Bắt đầu</a>
+                        </div>
+                        <div class="plan-item">
+                            <div class="plan-check">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                            </div>
+                            <div class="plan-info">
+                                <span class="plan-title">Bài học: Nội khoa cơ bản</span>
+                                <span class="plan-meta">~30 phút đọc</span>
+                            </div>
+                            <a href="#/lesson" class="btn btn-sm btn-outline">Xem</a>
+                        </div>
+                        <div class="plan-item">
+                            <div class="plan-check done">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            </div>
+                            <div class="plan-info">
+                                <span class="plan-title completed">Ôn tập năng lực</span>
+                                <span class="plan-meta">Đã hoàn thành</span>
+                            </div>
+                            <span class="btn btn-sm btn-ghost">✓ Xong</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="glass-card card-actions">
+                    <div class="card-header">
+                        <h3 class="card-title">⚡ Hành động nhanh</h3>
+                    </div>
+                    <div class="quick-actions-grid">
+                        <button class="quick-action-btn" onclick="MedAdapt.test.startDaily()">
+                            <div class="qa-icon qa-icon-test">📝</div>
+                            <span>Kiểm tra<br>hàng ngày</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="MedAdapt.test.startDiagnostic()">
+                            <div class="qa-icon qa-icon-diag">🔬</div>
+                            <span>Kiểm tra<br>chẩn đoán</span>
+                        </button>
+                        <a href="#/lesson" class="quick-action-btn">
+                            <div class="qa-icon qa-icon-lesson">📖</div>
+                            <span>Bài học<br>hôm nay</span>
+                        </a>
+                        <a href="#/tracker" class="quick-action-btn">
+                            <div class="qa-icon qa-icon-track">📊</div>
+                            <span>Xem<br>năng lực</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="glass-card card-activity">
+                    <div class="card-header">
+                        <h3 class="card-title">🕐 Hoạt động gần đây</h3>
+                    </div>
+                    <div class="activity-timeline" id="activity-timeline">
+                        <div class="activity-item">
+                            <div class="activity-dot dot-success"></div>
+                            <div class="activity-content">
+                                <span class="activity-text">Hoàn thành bài kiểm tra hàng ngày — 85%</span>
+                                <span class="activity-time">Hôm nay, 08:30</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot dot-info"></div>
+                            <div class="activity-content">
+                                <span class="activity-text">Đọc bài: Tim mạch cơ bản</span>
+                                <span class="activity-time">Hôm qua, 21:15</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot dot-warning"></div>
+                            <div class="activity-content">
+                                <span class="activity-text">Cập nhật tracker năng lực</span>
+                                <span class="activity-time">Hôm qua, 20:00</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot dot-success"></div>
+                            <div class="activity-content">
+                                <span class="activity-text">Đạt huy hiệu "Ngày đầu tiên" 🏅</span>
+                                <span class="activity-time">2 ngày trước</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════ TEST ════════════════ -->
+        <section id="page-test" class="page hidden">
+            <!-- Test Start Screen -->
+            <div id="test-start-screen" class="hidden">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">📝 Kiểm tra</h1>
+                        <p class="page-subtitle">Chọn loại bài kiểm tra để bắt đầu</p>
+                    </div>
+                </div>
+                <div class="test-type-grid">
+                    <div class="test-type-card glass-card" onclick="MedAdapt.test.startRandom()" style="border: 1px solid rgba(0,242,254,0.4); box-shadow: 0 0 15px rgba(0,242,254,0.1);">
+                        <div class="ttc-icon">🎲</div>
+                        <h3 style="color:#00f2fe;">Kiểm tra Ngẫu nhiên AI</h3>
+                        <p>AI sinh liên tục 15 câu lâm sàng xáo trộn chuyên khoa, linh hoạt làm phong phú Tracker</p>
+                        <div class="ttc-meta">
+                            <span>⏱ Siêu nhanh</span>
+                            <span>📊 15 câu random</span>
+                        </div>
+                        <button class="btn btn-primary btn-glow btn-block" style="background: linear-gradient(135deg, #00f2fe, #4facfe); font-weight:600;">🎲 Tạo Random Test ngay</button>
+                    </div>
+                    <div class="test-type-card glass-card" onclick="MedAdapt.test.startDaily()">
+                        <div class="ttc-icon">📋</div>
+                        <h3>Kiểm tra hàng ngày</h3>
+                        <p>15 câu hỏi thích ứng tập trung sâu vào các lĩnh vực yếu hiện tại của bạn</p>
+                        <div class="ttc-meta">
+                            <span>⏱ ~20 phút</span>
+                            <span>📊 15 câu hỏi</span>
+                        </div>
+                        <button class="btn btn-primary btn-block">Bắt đầu</button>
+                    </div>
+                    <div class="test-type-card glass-card" onclick="MedAdapt.test.startDiagnostic()">
+                        <div class="ttc-icon">🔬</div>
+                        <h3>Kiểm tra chẩn đoán</h3>
+                        <p>Đánh giá toàn diện năng lực ban đầu qua tất cả lĩnh vực</p>
+                        <div class="ttc-meta">
+                            <span>⏱ ~45 phút</span>
+                            <span>📊 30 câu hỏi</span>
+                        </div>
+                        <button class="btn btn-outline btn-block">Bắt đầu</button>
+                    </div>
+                </div>
+                <!-- Past Results -->
+                <div class="glass-card" style="margin-top:2rem">
+                    <div class="card-header">
+                        <h3 class="card-title">📊 Kết quả gần đây</h3>
+                    </div>
+                    <div id="past-results" class="past-results-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <p>Chưa có kết quả kiểm tra nào</p>
+                            <span>Hãy bắt đầu bài kiểm tra đầu tiên!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Active Screen -->
+            <div id="test-active-screen" class="hidden">
+                <!-- Test Top Bar -->
+                <div class="test-topbar glass-card">
+                    <div class="test-timer" id="test-timer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span id="timer-display">20:00</span>
+                    </div>
+                    <div class="test-progress-bar">
+                        <div class="test-progress-fill" id="test-progress-fill" style="width:0%"></div>
+                        <span class="test-progress-text" id="test-progress-text">0 / 15</span>
+                    </div>
+                    <div class="test-score-indicator">
+                        <span id="test-current-score">0</span>
+                        <span class="score-label">điểm</span>
+                    </div>
+                </div>
+
+                <!-- Question Card -->
+                <div class="question-container">
+                    <div class="question-card glass-card">
+                        <div class="question-meta">
+                            <span class="question-number" id="question-number">Câu 1</span>
+                            <span class="question-domain" id="question-domain">Nội khoa</span>
+                            <span class="question-difficulty" id="question-difficulty">Trung bình</span>
+                        </div>
+                        <div class="clinical-vignette" id="clinical-vignette">
+                            <div class="vignette-label">📋 Tình huống lâm sàng</div>
+                            <p id="vignette-text">Bệnh nhân nam 55 tuổi, tiền sử tăng huyết áp 10 năm, đái tháo đường type 2, đến khám vì đau ngực trái khi gắng sức 2 tuần nay. Đau kiểu thắt, lan lên vai trái, kéo dài 5-10 phút, giảm khi nghỉ.</p>
+                        </div>
+                        <div class="question-text" id="question-text">
+                            <p>Chẩn đoán phù hợp nhất cho bệnh nhân này là gì?</p>
+                        </div>
+                        <div class="answer-options" id="answer-options">
+                            <!-- Answers populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Test Navigation -->
+                    <div class="test-nav">
+                        <button class="btn btn-ghost" id="btn-prev-question" onclick="MedAdapt.test.prevQuestion()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Câu trước
+                        </button>
+                        <div class="question-dots" id="question-dots"></div>
+                        <button class="btn btn-primary" id="btn-next-question" onclick="MedAdapt.test.nextQuestion()">
+                            Câu sau <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                        <button class="btn btn-primary btn-glow hidden" id="btn-submit-test" onclick="MedAdapt.test.submit()">
+                            ✅ Nộp bài
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Results Screen -->
+            <div id="test-results-screen" class="hidden">
+                <!-- Adaptive Continuous Loop Banner -->
+                <div id="adaptive-loop-banner" class="glass-card hidden" style="margin-bottom:1.5rem; background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(0,242,254,0.15)); border: 1px solid rgba(0,242,254,0.4); padding: 1.2rem; display:flex; flex-direction:column; align-items:center; text-align:center; box-shadow: 0 0 20px rgba(0,242,254,0.15);">
+                    <div style="font-size:1.1rem; font-weight:600; color:#fff; margin-bottom:0.8rem;">
+                        🔄 <span style="color:#00f2fe;">Vòng lặp AI liên tục:</span> Bài kiểm tra NGẪU NHIÊN & LINH HOẠT mới sẽ khởi chạy trong <span id="loop-countdown" style="color:#00f2fe; font-size:1.4rem; font-weight:700;">10</span> giây...
+                    </div>
+                    <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1rem;">AI đang liên tục xáo trộn các chuyên khoa và tiểu mục chưa được làm hoặc cần củng cố để làm đa dạng bảng theo dõi (Tracker) của bạn!</p>
+                    <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center;">
+                        <button class="btn btn-primary btn-glow" style="background: linear-gradient(135deg, #00f2fe, #4facfe); font-weight:600; padding:0.6rem 1.4rem;" onclick="MedAdapt.test.startNextAdaptiveLoop()">
+                            🚀 Bắt đầu bài Random tiếp theo ngay
+                        </button>
+                        <button class="btn btn-outline" style="border-color: rgba(255,255,255,0.3); color: var(--text-secondary); padding:0.6rem 1.4rem;" onclick="MedAdapt.test.pauseAdaptiveLoop()">
+                            ⏸️ Dừng tự động lặp (Nghỉ ngơi / Xem đáp án)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="results-hero glass-card">
+                    <div class="results-score-circle" id="results-score-circle">
+                        <svg viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+                            <circle cx="60" cy="60" r="54" fill="none" stroke="url(#scoreGrad)" stroke-width="8" stroke-dasharray="339.29" stroke-dashoffset="339.29" stroke-linecap="round" transform="rotate(-90 60 60)" id="score-circle-path"/>
+                            <defs><linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#43e97b"/><stop offset="1" stop-color="#38f9d7"/></linearGradient></defs>
+                        </svg>
+                        <div class="score-text">
+                            <span class="score-percent" id="results-percent">0%</span>
+                            <span class="score-sub" id="results-correct">0/15 đúng</span>
+                        </div>
+                    </div>
+                    <h2 id="results-message">Kết quả kiểm tra</h2>
+                    <p id="results-sub-message">Hãy xem chi tiết bên dưới</p>
+                </div>
+
+                <div id="results-ai-feedback-card" class="glass-card" style="margin-top:1.5rem; border-left: 4px solid #00f2fe; background: rgba(0, 242, 254, 0.05);">
+                    <div class="card-header" style="margin-bottom:0.5rem;"><h3 class="card-title" style="color:#00f2fe;">🤖 Nhận định từ AI & Cập nhật Năng lực</h3></div>
+                    <p id="results-ai-feedback-text" style="color:var(--text-secondary); line-height:1.6; font-size: 0.95rem;">Đang tổng hợp đánh giá và cập nhật năng lực...</p>
+                </div>
+
+                <div class="results-grid" style="margin-top:1.5rem;">
+                    <div class="glass-card">
+                        <div class="card-header"><h3 class="card-title">📊 Phân tích theo lĩnh vực</h3></div>
+                        <div class="chart-container"><canvas id="results-radar-chart"></canvas></div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="card-header"><h3 class="card-title">📋 Chi tiết câu hỏi</h3></div>
+                        <div class="results-breakdown" id="results-breakdown">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="results-actions" style="display:flex; flex-direction:column; gap:1rem; width:100%; max-width:850px; margin: 0 auto;">
+                    <button class="btn btn-primary btn-glow" style="width:100%; background: linear-gradient(135deg, #00f2fe, #4facfe); font-weight:600; font-size:1.1rem; padding:1.2rem; border-radius:12px; box-shadow: 0 4px 20px rgba(0, 242, 254, 0.4);" onclick="window.location.hash='#/dashboard'">
+                        🚀 MỞ TRANG WEB CHÍNH (Khởi chạy Vòng lặp Học ➔ Test ➔ Update từ bài test đầu)
+                    </button>
+                    <div style="display:flex; flex-wrap:wrap; gap:1rem; justify-content:center;">
+                        <button class="btn btn-outline" style="flex:1; min-width:200px;" onclick="MedAdapt.test.startDaily()">⚡ Tiếp tục làm test hàng ngày</button>
+                        <button class="btn btn-outline" style="flex:1; min-width:200px;" onclick="MedAdapt.test.reviewAnswers()">📖 Xem đáp án chi tiết</button>
+                        <a href="#/tracker" class="btn btn-outline" style="flex:1; min-width:200px;">📊 Bảng theo dõi Tracker</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════ TRACKER ════════════════ -->
+        <section id="page-tracker" class="page hidden">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">📊 Theo dõi Năng lực</h1>
+                    <p class="page-subtitle">Đánh giá chi tiết năng lực y khoa của bạn</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" onclick="MedAdapt.tracker.refresh()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+                        Cập nhật
+                    </button>
+                </div>
+            </div>
+
+            <div class="tracker-grid">
+                <!-- Radar Chart -->
+                <div class="glass-card tracker-radar">
+                    <div class="card-header">
+                        <h3 class="card-title">Biểu đồ Năng lực tổng quan</h3>
+                    </div>
+                    <div class="chart-container chart-lg">
+                        <canvas id="tracker-radar-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Bloom Level Breakdown -->
+                <div class="glass-card tracker-bloom">
+                    <div class="card-header">
+                        <h3 class="card-title">🧠 Phân tích theo cấp độ Bloom</h3>
+                    </div>
+                    <div class="bloom-levels" id="bloom-levels">
+                        <div class="bloom-item">
+                            <div class="bloom-info">
+                                <span class="bloom-name">Ghi nhớ</span>
+                                <span class="bloom-score">75%</span>
+                            </div>
+                            <div class="bloom-bar"><div class="bloom-bar-fill" style="width:75%; background: linear-gradient(90deg, #667eea, #764ba2)"></div></div>
+                        </div>
+                        <div class="bloom-item">
+                            <div class="bloom-info">
+                                <span class="bloom-name">Hiểu</span>
+                                <span class="bloom-score">68%</span>
+                            </div>
+                            <div class="bloom-bar"><div class="bloom-bar-fill" style="width:68%; background: linear-gradient(90deg, #4facfe, #00f2fe)"></div></div>
+                        </div>
+                        <div class="bloom-item">
+                            <div class="bloom-info">
+                                <span class="bloom-name">Áp dụng</span>
+                                <span class="bloom-score">55%</span>
+                            </div>
+                            <div class="bloom-bar"><div class="bloom-bar-fill" style="width:55%; background: linear-gradient(90deg, #43e97b, #38f9d7)"></div></div>
+                        </div>
+                        <div class="bloom-item">
+                            <div class="bloom-info">
+                                <span class="bloom-name">Phân tích</span>
+                                <span class="bloom-score">42%</span>
+                            </div>
+                            <div class="bloom-bar"><div class="bloom-bar-fill" style="width:42%; background: linear-gradient(90deg, #fa709a, #fee140)"></div></div>
+                        </div>
+                        <div class="bloom-item">
+                            <div class="bloom-info">
+                                <span class="bloom-name">Đánh giá</span>
+                                <span class="bloom-score">30%</span>
+                            </div>
+                            <div class="bloom-bar"><div class="bloom-bar-fill" style="width:30%; background: linear-gradient(90deg, #f5576c, #ff6a88)"></div></div>
+                        </div>
+                        <div class="bloom-item">
+                            <div class="bloom-info">
+                                <span class="bloom-name">Sáng tạo</span>
+                                <span class="bloom-score">20%</span>
+                            </div>
+                            <div class="bloom-bar"><div class="bloom-bar-fill" style="width:20%; background: linear-gradient(90deg, #a18cd1, #fbc2eb)"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Competency Table -->
+                <div class="glass-card tracker-table-card">
+                    <div class="card-header">
+                        <h3 class="card-title">📋 Chi tiết theo lĩnh vực</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="tracker-table" id="tracker-table">
+                            <thead>
+                                <tr>
+                                    <th>Lĩnh vực</th>
+                                    <th>Điểm</th>
+                                    <th>Xu hướng</th>
+                                    <th>Trình độ</th>
+                                    <th>Lần kiểm tra</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tracker-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Gap Analysis -->
+                <div class="glass-card tracker-gaps">
+                    <div class="card-header">
+                        <h3 class="card-title">🎯 Phân tích khoảng cách</h3>
+                    </div>
+                    <div id="gap-analysis" class="gap-list">
+                        <div class="gap-item gap-critical">
+                            <div class="gap-severity">Nghiêm trọng</div>
+                            <div class="gap-info">
+                                <span class="gap-domain">Dược lý lâm sàng</span>
+                                <span class="gap-detail">Cần cải thiện ngay: Tương tác thuốc, liều lượng</span>
+                            </div>
+                            <span class="gap-score">25%</span>
+                        </div>
+                        <div class="gap-item gap-major">
+                            <div class="gap-severity">Quan trọng</div>
+                            <div class="gap-info">
+                                <span class="gap-domain">Chẩn đoán hình ảnh</span>
+                                <span class="gap-detail">Cần ôn tập: Đọc X-quang, CT scan</span>
+                            </div>
+                            <span class="gap-score">40%</span>
+                        </div>
+                        <div class="gap-item gap-minor">
+                            <div class="gap-severity">Nhẹ</div>
+                            <div class="gap-info">
+                                <span class="gap-domain">Sinh lý bệnh</span>
+                                <span class="gap-detail">Có thể cải thiện: Cơ chế bệnh sinh</span>
+                            </div>
+                            <span class="gap-score">60%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Recommendations -->
+                <div class="glass-card tracker-recs">
+                    <div class="card-header">
+                        <h3 class="card-title">🤖 Đề xuất từ AI</h3>
+                    </div>
+                    <div id="ai-recommendations" class="rec-list">
+                        <div class="rec-item">
+                            <div class="rec-icon">💡</div>
+                            <div class="rec-content">
+                                <span class="rec-title">Tập trung vào Dược lý</span>
+                                <span class="rec-desc">Bạn nên dành thêm thời gian ôn tập tương tác thuốc. Đây là lĩnh vực cần cải thiện nhất.</span>
+                            </div>
+                        </div>
+                        <div class="rec-item">
+                            <div class="rec-icon">📈</div>
+                            <div class="rec-content">
+                                <span class="rec-title">Nội khoa đang tiến bộ</span>
+                                <span class="rec-desc">Điểm Nội khoa tăng 15% trong tuần qua. Hãy tiếp tục phát huy!</span>
+                            </div>
+                        </div>
+                        <div class="rec-item">
+                            <div class="rec-icon">🎯</div>
+                            <div class="rec-content">
+                                <span class="rec-title">Luyện tập câu hỏi phân tích</span>
+                                <span class="rec-desc">Nâng cao cấp độ Bloom bằng cách giải thêm các bài tập phân tích ca lâm sàng.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════ LESSON ════════════════ -->
+        <section id="page-lesson" class="page hidden">
+            <!-- Lesson Reading Progress -->
+            <div class="lesson-progress-bar" id="lesson-progress-bar">
+                <div class="lesson-progress-fill" id="lesson-progress-fill"></div>
+            </div>
+
+            <div class="lesson-layout">
+                <!-- Sidebar TOC -->
+                <aside class="lesson-sidebar glass-card" id="lesson-sidebar">
+                    <div class="lesson-sidebar-header">
+                        <h4>📑 Mục lục</h4>
+                    </div>
+                    <ul class="toc-list" id="toc-list">
+                        <li class="toc-item active"><a href="#section-1">1. Tổng quan</a></li>
+                        <li class="toc-item"><a href="#section-2">2. Sinh lý bệnh</a></li>
+                        <li class="toc-item"><a href="#section-3">3. Triệu chứng lâm sàng</a></li>
+                        <li class="toc-item"><a href="#section-4">4. Chẩn đoán</a></li>
+                        <li class="toc-item"><a href="#section-5">5. Điều trị</a></li>
+                        <li class="toc-item"><a href="#section-6">6. Câu hỏi tự kiểm tra</a></li>
+                    </ul>
+                </aside>
+
+                <!-- Lesson Content -->
+                <div class="lesson-content" id="lesson-content">
+                    <div class="lesson-header glass-card">
+                        <div class="lesson-category">Nội khoa • Tim mạch</div>
+                        <h1 class="lesson-title" id="lesson-title">Bệnh mạch vành mạn tính</h1>
+                        <div class="lesson-meta-row">
+                            <span class="lesson-meta-item">⏱ 30 phút đọc</span>
+                            <span class="lesson-meta-item">📊 Trung bình</span>
+                            <span class="lesson-meta-item">📅 Cập nhật: 05/07/2026</span>
+                        </div>
+                    </div>
+
+                    <!-- Section 1 -->
+                    <div class="lesson-section" id="section-1">
+                        <h2 class="section-title"><span class="section-icon">📖</span> 1. Tổng quan</h2>
+                        <p>Bệnh mạch vành mạn tính (Chronic Coronary Syndrome - CCS) là tình trạng hẹp hoặc tắc động mạch vành do xơ vữa, gây giảm cung cấp máu cho cơ tim. Đây là một trong những nguyên nhân hàng đầu gây tử vong trên toàn thế giới.</p>
+                        
+                        <div class="callout-box callout-info">
+                            <div class="callout-icon">💡</div>
+                            <div class="callout-content">
+                                <strong>Điểm quan trọng:</strong> Theo ESC 2019, thuật ngữ "Bệnh mạch vành mạn tính" (CCS) đã thay thế cho "Đau thắt ngực ổn định" để phản ánh tốt hơn bản chất đa dạng của bệnh.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2 -->
+                    <div class="lesson-section" id="section-2">
+                        <h2 class="section-title"><span class="section-icon">🔬</span> 2. Sinh lý bệnh</h2>
+                        <p>Quá trình xơ vữa động mạch vành diễn ra qua nhiều giai đoạn:</p>
+                        <ul class="styled-list">
+                            <li>Tổn thương nội mạc do các yếu tố nguy cơ</li>
+                            <li>Tích tụ lipid và tạo vệt mỡ</li>
+                            <li>Hình thành mảng xơ vữa (atheroma)</li>
+                            <li>Biến chứng mảng xơ vữa: nứt, vỡ, huyết khối</li>
+                        </ul>
+
+                        <div class="clinical-vignette-box">
+                            <div class="vignette-header">📋 Tình huống lâm sàng minh họa</div>
+                            <p>Ông A, 60 tuổi, tiền sử hút thuốc 30 năm, tăng huyết áp, rối loạn lipid máu. Bệnh nhân đến khám vì đau ngực khi leo cầu thang, mỗi lần đau kéo dài 3-5 phút, giảm khi nghỉ ngơi. ECG lúc nghỉ: bình thường.</p>
+                        </div>
+                    </div>
+
+                    <!-- Section 3 -->
+                    <div class="lesson-section" id="section-3">
+                        <h2 class="section-title"><span class="section-icon">🩺</span> 3. Triệu chứng lâm sàng</h2>
+                        <p>Biểu hiện chính của CCS là cơn đau thắt ngực điển hình với 3 đặc điểm:</p>
+
+                        <div class="callout-box callout-warning">
+                            <div class="callout-icon">⚠️</div>
+                            <div class="callout-content">
+                                <strong>3 tiêu chuẩn đau thắt ngực điển hình:</strong>
+                                <ol>
+                                    <li>Đau thắt sau xương ức, có thể lan lên vai, cánh tay trái, hàm</li>
+                                    <li>Khởi phát khi gắng sức hoặc stress cảm xúc</li>
+                                    <li>Giảm khi nghỉ ngơi hoặc dùng nitroglycerin</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="pearl-box">
+                            <div class="pearl-icon">🩺</div>
+                            <div class="pearl-content">
+                                <strong>Clinical Pearl:</strong> Đau ngực có 2/3 tiêu chuẩn = đau thắt ngực không điển hình. Có 1/3 hoặc 0/3 = đau ngực không do tim. Phân loại CCS theo Canadian Cardiovascular Society (CCS) từ I-IV.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4 -->
+                    <div class="lesson-section" id="section-4">
+                        <h2 class="section-title"><span class="section-icon">🔍</span> 4. Chẩn đoán</h2>
+                        <p>Các phương pháp chẩn đoán được khuyến cáo:</p>
+
+                        <div class="memory-aid-card glass-card">
+                            <div class="memory-header">🧠 Mẹo ghi nhớ: "ABCDE" chẩn đoán mạch vành</div>
+                            <div class="memory-content">
+                                <ul class="memory-list">
+                                    <li><strong class="accent-text">A</strong>namnesis — Hỏi bệnh sử chi tiết</li>
+                                    <li><strong class="accent-text">B</strong>lood test — Xét nghiệm máu (lipid, đường, troponin)</li>
+                                    <li><strong class="accent-text">C</strong>ardiac imaging — Hình ảnh tim (Echo, CT, MRI)</li>
+                                    <li><strong class="accent-text">D</strong>iagnostic test — Nghiệm pháp gắng sức</li>
+                                    <li><strong class="accent-text">E</strong>CG — Điện tâm đồ lúc nghỉ & gắng sức</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 5 -->
+                    <div class="lesson-section" id="section-5">
+                        <h2 class="section-title"><span class="section-icon">💊</span> 5. Điều trị</h2>
+                        <p>Điều trị CCS bao gồm 3 trụ cột chính:</p>
+                        
+                        <div class="callout-box callout-success">
+                            <div class="callout-icon">✅</div>
+                            <div class="callout-content">
+                                <strong>3 trụ cột điều trị:</strong>
+                                <ol>
+                                    <li><strong>Thay đổi lối sống:</strong> Bỏ thuốc lá, tập thể dục, chế độ ăn lành mạnh</li>
+                                    <li><strong>Điều trị nội khoa:</strong> Aspirin, Statin, Beta-blocker, ACEi/ARB, Nitrate</li>
+                                    <li><strong>Tái thông mạch vành:</strong> PCI hoặc CABG khi có chỉ định</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 6: Self-check -->
+                    <div class="lesson-section" id="section-6">
+                        <h2 class="section-title"><span class="section-icon">✍️</span> 6. Câu hỏi tự kiểm tra</h2>
+                        
+                        <div class="self-check-card glass-card">
+                            <div class="sc-question">
+                                <span class="sc-number">Câu 1:</span>
+                                Đâu là tiêu chuẩn KHÔNG thuộc 3 đặc điểm đau thắt ngực điển hình?
+                            </div>
+                            <div class="sc-options">
+                                <button class="sc-option" data-correct="false" onclick="MedAdapt.lesson.checkAnswer(this)">A. Đau thắt sau xương ức</button>
+                                <button class="sc-option" data-correct="false" onclick="MedAdapt.lesson.checkAnswer(this)">B. Khởi phát khi gắng sức</button>
+                                <button class="sc-option" data-correct="true" onclick="MedAdapt.lesson.checkAnswer(this)">C. Kéo dài trên 30 phút</button>
+                                <button class="sc-option" data-correct="false" onclick="MedAdapt.lesson.checkAnswer(this)">D. Giảm khi nghỉ ngơi</button>
+                            </div>
+                            <div class="sc-explanation hidden">
+                                <strong>Đáp án: C.</strong> Đau thắt ngực điển hình thường kéo dài 2-10 phút. Nếu đau kéo dài trên 20-30 phút, cần nghĩ đến hội chứng vành cấp (ACS).
+                            </div>
+                        </div>
+
+                        <div class="self-check-card glass-card">
+                            <div class="sc-question">
+                                <span class="sc-number">Câu 2:</span>
+                                Thuốc nào sau đây KHÔNG thuộc nhóm điều trị nền tảng (cornerstone) bệnh mạch vành mạn?
+                            </div>
+                            <div class="sc-options">
+                                <button class="sc-option" data-correct="false" onclick="MedAdapt.lesson.checkAnswer(this)">A. Aspirin</button>
+                                <button class="sc-option" data-correct="false" onclick="MedAdapt.lesson.checkAnswer(this)">B. Statin</button>
+                                <button class="sc-option" data-correct="true" onclick="MedAdapt.lesson.checkAnswer(this)">C. Kháng sinh</button>
+                                <button class="sc-option" data-correct="false" onclick="MedAdapt.lesson.checkAnswer(this)">D. Beta-blocker</button>
+                            </div>
+                            <div class="sc-explanation hidden">
+                                <strong>Đáp án: C.</strong> Kháng sinh không có vai trò trong điều trị bệnh mạch vành mạn. 4 nhóm thuốc nền tảng: Aspirin, Statin, Beta-blocker, ACEi/ARB.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════ MENTOR (SOCRATIC CLINICAL REASONING) ════════════════ -->
+        <section id="page-mentor" class="page hidden">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">🧠 Cố Vấn Lâm Sàng Socratic (VINDICATE)</h1>
+                    <p class="page-subtitle">Rèn luyện tư duy chẩn đoán và xử trí thực chiến theo từng bước mà không có lời giải sẵn</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" onclick="MedAdapt.mentor.showFrameworkGuide()" style="border-color: #00f2fe; color: #00f2fe;">
+                        <span>ℹ️ Khung VINDICATE</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="MedAdapt.mentor.startNewCase()" style="background: linear-gradient(135deg, #00f2fe, #4facfe); color: #000; font-weight: 700;">
+                        <span>🚀 Ca Lâm Sàng Mới</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mentor Setup / Toolbar -->
+            <div class="glass-card" style="padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; justify-content: space-between;">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Chuyên khoa USMLE:</label>
+                        <select id="mentor-domain-select" class="form-control" style="width: 250px; background: rgba(10, 14, 39, 0.8); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem;">
+                            <option value="internal">🫀 Nội khoa (Internal Medicine)</option>
+                            <option value="emergency">🚑 Cấp cứu & Hồi sức (Emergency)</option>
+                            <option value="surgery">🔪 Ngoại khoa & Chấn thương (Surgery)</option>
+                            <option value="pediatrics">👶 Nhi khoa (Pediatrics)</option>
+                            <option value="obgyn">🤰 Sản phụ khoa (OB/GYN)</option>
+                            <option value="psychiatry">🧠 Tâm thần & Thần kinh (Psychology)</option>
+                            <option value="pathology">🔬 Giải phẫu bệnh & Sinh lý bệnh</option>
+                            <option value="pharmacology">💊 Dược lý lâm sàng (Pharmacology)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Độ khó (Level):</label>
+                        <select id="mentor-difficulty-select" class="form-control" style="width: 150px; background: rgba(10, 14, 39, 0.8); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem;">
+                            <option value="2">Level 2 (Cơ bản)</option>
+                            <option value="3" selected>Level 3 (Thực tập sinh)</option>
+                            <option value="4">Level 4 (Nội trú USMLE)</option>
+                            <option value="5">Level 5 (Chuyên gia 250+)</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <span class="badge" style="background: rgba(0, 242, 254, 0.15); color: #00f2fe; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">
+                        ⚡ Socratic Method: 5 Stages
+                    </span>
+                </div>
+            </div>
+
+            <!-- Mentor Workspace Grid -->
+            <div id="mentor-workspace" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; align-items: start;">
+                <!-- Left Column: Patient Case Vignette -->
+                <div class="glass-card" style="padding: 1.5rem; border-left: 4px solid #00f2fe; position: sticky; top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem; margin-bottom: 1rem;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>📋 Dữ Liệu Bệnh Nhân (Patient Case)</span>
+                        </h3>
+                        <span id="mentor-stage-badge" style="background: linear-gradient(135deg, #667eea, #764ba2); font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; font-weight: 600;">Giai đoạn: Tiếp nhận</span>
+                    </div>
+                    <div id="mentor-case-content" style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; max-height: 500px; overflow-y: auto; padding-right: 0.5rem;">
+                        <div style="text-align: center; padding: 3rem 1rem; color: #64748b;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🩺</div>
+                            <p>Hãy chọn Chuyên khoa và bấm <strong>"🚀 Ca Lâm Sàng Mới"</strong> để tiếp nhận bệnh nhân và thực hành biện luận Socratic.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Socratic Chat & Interaction -->
+                <div class="glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; min-height: 550px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem; margin-bottom: 1rem;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>💬 Biện Luận Lâm Sàng & Phản Hồi AI</span>
+                        </h3>
+                        <button class="btn btn-sm" onclick="MedAdapt.mentor.requestHint()" style="background: rgba(250, 112, 154, 0.2); color: #fa709a; border: 1px solid rgba(250, 112, 154, 0.4); font-size: 0.75rem;">
+                            <span>💡 Xin Gợi Ý (Hints)</span>
+                        </button>
+                    </div>
+
+                    <!-- Chat History -->
+                    <div id="mentor-chat-history" style="flex: 1; overflow-y: auto; max-height: 400px; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 1rem; padding-right: 0.5rem;">
+                        <div class="mentor-bubble ai-bubble" style="background: rgba(102, 126, 234, 0.15); border: 1px solid rgba(102, 126, 234, 0.3); padding: 1rem; border-radius: 12px; color: #e2e8f0; font-size: 0.9rem;">
+                            <strong style="color: #00f2fe; display: block; margin-bottom: 0.4rem;">🤖 Cố vấn Socratic AI:</strong>
+                            Chào Bác sĩ! Khác với bài trắc nghiệm MCQ chọn A/B/C/D thông thường, tại đây chúng ta sẽ thực hành tư duy lâm sàng theo chuẩn USMLE qua phương pháp Socratic.<br><br>
+                            Hãy tiếp nhận ca lâm sàng ở khung bên trái, sau đó nhập những phân tích, chẩn đoán phân biệt theo khung <strong>VINDICATE</strong> hoặc chỉ định xét nghiệm vào ô trống bên dưới để bắt đầu thảo luận!
+                        </div>
+                    </div>
+
+                    <!-- Reasoning Input -->
+                    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.4rem;">Gõ suy luận / Chẩn đoán / Chỉ định của bạn tại đây:</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <textarea id="mentor-user-input" class="form-control" rows="3" placeholder="Ví dụ: Bệnh nhân nam đau ngực cấp, nghĩ nhiều đến STEMI thành trước do ECG có ST chênh ở V1-V4. Cần chỉ định ngay Troponin I và cho Aspirin nhai 325mg..." style="flex: 1; background: rgba(10, 14, 39, 0.8); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 0.75rem; font-family: inherit; resize: none;"></textarea>
+                            <button id="mentor-send-btn" class="btn btn-primary" onclick="MedAdapt.mentor.sendResponse()" style="align-self: flex-end; padding: 0.75rem 1.25rem; background: linear-gradient(135deg, #00f2fe, #4facfe); color: #000; font-weight: 700; height: 100%;">
+                                <span>Gửi 🚀</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════ PROGRESS ════════════════ -->
+        <section id="page-progress" class="page hidden">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">📈 Tiến độ học tập</h1>
+                    <p class="page-subtitle">Theo dõi quá trình phát triển của bạn</p>
+                </div>
+                <div class="header-actions">
+                    <div class="toggle-group" id="progress-period-toggle">
+                        <button class="toggle-btn active" data-period="week">Tuần</button>
+                        <button class="toggle-btn" data-period="month">Tháng</button>
+                        <button class="toggle-btn" data-period="all">Tất cả</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Summary -->
+            <div class="progress-stats-row">
+                <div class="progress-stat glass-card">
+                    <span class="ps-value" id="ps-total-hours">12.5</span>
+                    <span class="ps-label">Giờ học tập</span>
+                </div>
+                <div class="progress-stat glass-card">
+                    <span class="ps-value" id="ps-total-questions">156</span>
+                    <span class="ps-label">Câu hỏi đã làm</span>
+                </div>
+                <div class="progress-stat glass-card">
+                    <span class="ps-value" id="ps-accuracy">72%</span>
+                    <span class="ps-label">Độ chính xác</span>
+                </div>
+                <div class="progress-stat glass-card">
+                    <span class="ps-value" id="ps-improvement">+15%</span>
+                    <span class="ps-label">Cải thiện</span>
+                </div>
+            </div>
+
+            <div class="progress-grid">
+                <!-- Trend Chart -->
+                <div class="glass-card progress-chart-card">
+                    <div class="card-header">
+                        <h3 class="card-title">📈 Xu hướng điểm số</h3>
+                    </div>
+                    <div class="chart-container chart-lg">
+                        <canvas id="progress-line-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Heatmap Calendar -->
+                <div class="glass-card progress-heatmap-card">
+                    <div class="card-header">
+                        <h3 class="card-title">🗓️ Lịch học tập</h3>
+                    </div>
+                    <div class="heatmap-container" id="heatmap-container">
+                        <div class="heatmap-months" id="heatmap-months"></div>
+                        <div class="heatmap-grid" id="heatmap-grid"></div>
+                        <div class="heatmap-legend">
+                            <span>Ít</span>
+                            <div class="heatmap-legend-cell" style="background:rgba(67,233,123,0.1)"></div>
+                            <div class="heatmap-legend-cell" style="background:rgba(67,233,123,0.3)"></div>
+                            <div class="heatmap-legend-cell" style="background:rgba(67,233,123,0.5)"></div>
+                            <div class="heatmap-legend-cell" style="background:rgba(67,233,123,0.7)"></div>
+                            <div class="heatmap-legend-cell" style="background:rgba(67,233,123,1)"></div>
+                            <span>Nhiều</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Badges -->
+                <div class="glass-card progress-badges-card">
+                    <div class="card-header">
+                        <h3 class="card-title">🏆 Bộ sưu tập Huy hiệu</h3>
+                    </div>
+                    <div class="badges-grid" id="badges-grid">
+                        <div class="badge-item earned">
+                            <div class="badge-icon">🌟</div>
+                            <span class="badge-name">Khởi đầu</span>
+                            <span class="badge-desc">Hoàn thành bài kiểm tra đầu tiên</span>
+                        </div>
+                        <div class="badge-item earned">
+                            <div class="badge-icon">🔥</div>
+                            <span class="badge-name">3 ngày liên tục</span>
+                            <span class="badge-desc">Học 3 ngày không nghỉ</span>
+                        </div>
+                        <div class="badge-item earned">
+                            <div class="badge-icon">📚</div>
+                            <span class="badge-name">Mọt sách</span>
+                            <span class="badge-desc">Đọc 5 bài học</span>
+                        </div>
+                        <div class="badge-item">
+                            <div class="badge-icon">💯</div>
+                            <span class="badge-name">Hoàn hảo</span>
+                            <span class="badge-desc">Đạt 100% một bài kiểm tra</span>
+                        </div>
+                        <div class="badge-item">
+                            <div class="badge-icon">🏔️</div>
+                            <span class="badge-name">Chinh phục</span>
+                            <span class="badge-desc">Thành thạo 1 lĩnh vực</span>
+                        </div>
+                        <div class="badge-item">
+                            <div class="badge-icon">⚡</div>
+                            <span class="badge-name">Tốc độ</span>
+                            <span class="badge-desc">Hoàn thành bài test dưới 10 phút</span>
+                        </div>
+                        <div class="badge-item">
+                            <div class="badge-icon">🎯</div>
+                            <span class="badge-name">7 ngày streak</span>
+                            <span class="badge-desc">Học 7 ngày liên tiếp</span>
+                        </div>
+                        <div class="badge-item">
+                            <div class="badge-icon">👑</div>
+                            <span class="badge-name">Bậc thầy</span>
+                            <span class="badge-desc">Thành thạo tất cả lĩnh vực</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════ SETTINGS ════════════════ -->
+        <section id="page-settings" class="page hidden">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">⚙️ Cài đặt</h1>
+                    <p class="page-subtitle">Tùy chỉnh ứng dụng theo nhu cầu của bạn</p>
+                </div>
+            </div>
+
+            <div class="settings-grid">
+                <!-- AI Engine Model Upgrade -->
+                <div class="glass-card settings-section" style="border: 1px solid rgba(0,242,254,0.4); box-shadow: 0 0 15px rgba(0,242,254,0.1);">
+                    <div class="card-header">
+                        <h3 class="card-title" style="color:#00f2fe;">🤖 Nâng cấp & Chọn Model AI Engine</h3>
+                    </div>
+                    <div class="settings-form">
+                        <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1rem;">
+                            Chọn phiên bản AI thế hệ mới nhất cho trang web. Hệ thống hỗ trợ chuyển đổi siêu tốc ngay trên thời gian thực, không cần khởi động lại máy chủ!
+                        </p>
+                        <div class="form-group">
+                            <label for="setting-ai-model" style="font-weight:600; color:#fff;">Phiên bản Model AI</label>
+                            <select id="setting-ai-model" class="form-input" style="background: rgba(10,14,39,0.9); color: #fff; cursor: pointer; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(0,242,254,0.3); font-size: 0.95rem;">
+                                <option value="gemini-2.5-pro">👑 Google Gemini 2.5 Pro (Siêu AI Lâm sàng Flagship - Khuyên dùng)</option>
+                                <option value="gemini-2.5-flash">⚡ Google Gemini 2.5 Flash (Tốc độ siêu nhanh, độ trễ cực thấp)</option>
+                                <option value="gemini-2.0-flash-exp">🧪 Google Gemini 2.0 Flash Exp (Model thử nghiệm thế hệ mới)</option>
+                                <option value="gemini-1.5-pro">🔬 Google Gemini 1.5 Pro (Năng lực xử lý ngữ cảnh sâu 2M tokens)</option>
+                                <option value="claude-3-5-sonnet-20241022">🧠 Anthropic Claude 3.5 Sonnet (Sư phạm và giải thích tự nhiên)</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary btn-glow" style="background: linear-gradient(135deg, #00f2fe, #4facfe); font-weight:600; width:100%; padding:0.8rem;" onclick="MedAdapt.settings.upgradeAiModel()">
+                            🚀 Cập nhật & Nâng cấp Model AI ngay
+                        </button>
+                    </div>
+                </div>
+
+                <!-- API Keys -->
+                <div class="glass-card settings-section">
+                    <div class="card-header">
+                        <h3 class="card-title">🔑 API Keys</h3>
+                    </div>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="setting-gemini-key">Gemini API Key</label>
+                            <div class="input-with-action">
+                                <input type="password" id="setting-gemini-key" class="form-input" placeholder="AIza...">
+                                <button class="btn btn-sm btn-ghost toggle-password" onclick="MedAdapt.settings.togglePassword(this)">👁</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="setting-openai-key">OpenAI API Key (tuỳ chọn)</label>
+                            <div class="input-with-action">
+                                <input type="password" id="setting-openai-key" class="form-input" placeholder="sk-...">
+                                <button class="btn btn-sm btn-ghost toggle-password" onclick="MedAdapt.settings.togglePassword(this)">👁</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="MedAdapt.settings.saveApiKeys()">Lưu API Keys</button>
+                    </div>
+                </div>
+
+                <!-- Notion Integration -->
+                <div class="glass-card settings-section">
+                    <div class="card-header">
+                        <h3 class="card-title">📓 Kết nối Notion</h3>
+                    </div>
+                    <div class="notion-status" id="notion-status">
+                        <div class="notion-indicator disconnected">
+                            <div class="notion-dot"></div>
+                            <span>Chưa kết nối</span>
+                        </div>
+                        <p class="notion-desc">Kết nối Notion để đồng bộ ghi chú và theo dõi tiến độ tự động.</p>
+                        <div class="form-group">
+                            <label for="setting-notion-token">Notion Integration Token</label>
+                            <input type="password" id="setting-notion-token" class="form-input" placeholder="secret_...">
+                        </div>
+                        <div class="notion-actions">
+                            <button class="btn btn-primary" onclick="MedAdapt.settings.setupNotion()">🔗 Kết nối Notion</button>
+                            <button class="btn btn-outline" onclick="MedAdapt.settings.syncNotion()">🔄 Đồng bộ</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences -->
+                <div class="glass-card settings-section">
+                    <div class="card-header">
+                        <h3 class="card-title">🎛️ Tùy chọn</h3>
+                    </div>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="setting-test-time">Giờ kiểm tra hàng ngày</label>
+                            <input type="time" id="setting-test-time" class="form-input" value="08:00">
+                        </div>
+                        <div class="form-group">
+                            <label for="setting-questions-per-test">Số câu hỏi mỗi bài</label>
+                            <select id="setting-questions-per-test" class="form-select">
+                                <option value="10">10 câu</option>
+                                <option value="15" selected>15 câu</option>
+                                <option value="20">20 câu</option>
+                                <option value="30">30 câu</option>
+                            </select>
+                        </div>
+                        <div class="setting-toggle-row">
+                            <div>
+                                <span class="setting-toggle-label">Thông báo nhắc nhở</span>
+                                <span class="setting-toggle-desc">Nhận thông báo khi đến giờ học</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="setting-notifications" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-toggle-row">
+                            <div>
+                                <span class="setting-toggle-label">Chế độ tối</span>
+                                <span class="setting-toggle-desc">Giao diện tối (đang bật)</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="setting-dark-mode" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <button class="btn btn-primary" onclick="MedAdapt.settings.savePreferences()">Lưu tùy chọn</button>
+                    </div>
+                </div>
+
+                <!-- About -->
+                <div class="glass-card settings-section">
+                    <div class="card-header">
+                        <h3 class="card-title">ℹ️ Giới thiệu</h3>
+                    </div>
+                    <div class="about-content">
+                        <div class="about-logo">
+                            <svg viewBox="0 0 60 60" fill="none" width="60" height="60">
+                                <rect width="60" height="60" rx="16" fill="url(#aboutGrad)"/>
+                                <path d="M30 15v30M15 30h30" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+                                <defs><linearGradient id="aboutGrad" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#667eea"/><stop offset="1" stop-color="#764ba2"/></linearGradient></defs>
+                            </svg>
+                        </div>
+                        <h4>MedAdapt v1.0</h4>
+                        <p>Hệ thống học tập y khoa thích ứng sử dụng AI để cá nhân hóa lộ trình học tập cho bác sĩ Việt Nam.</p>
+                        <div class="about-info">
+                            <span>Phiên bản: 1.0.0</span>
+                            <span>Ngày phát hành: 05/07/2026</span>
+                            <span>© 2026 MedAdapt Team</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
