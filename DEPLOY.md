@@ -63,7 +63,7 @@ Kiểm tra: `.env` **không** xuất hiện trên GitHub (chỉ có `.env.exampl
 | `HOST` | `0.0.0.0` | **Bắt buộc** trên cloud |
 | `TZ` | `Asia/Ho_Chi_Minh` | **Bắt buộc** để cron đúng 07:00 VN |
 | `DAILY_TEST_CRON` | `0 7 * * *` | 07:00 hằng ngày |
-| `DB_PATH` | `/data/medadapt.db` | Nếu có gắn disk |
+| `DB_PATH` | *(bỏ trống)* | **Free tier: ĐỪNG đặt** (mặc định `./data`, dữ liệu tạm). Chỉ đặt `/data/medadapt.db` khi ĐÃ gắn Disk (gói trả phí) mount tại `/data`. |
 | `AI_PROMPT_CACHE` | `true` | Giảm chi phí (Claude) |
 
 > `PORT` do nền tảng tự cấp — server đã đọc `process.env.PORT`, không cần khai báo.
@@ -114,7 +114,8 @@ Mở URL public → giao diện dashboard; làm bài → câu hỏi do AI sinh.
 | Trang không mở được | Server bind `localhost` | Đặt `HOST=0.0.0.0` |
 | Cron chạy sai giờ | Thiếu timezone | Đặt `TZ=Asia/Ho_Chi_Minh` |
 | `❌ AI Engine Not configured` | Sai/thiếu key | Kiểm tra `GEMINI_API_KEY` (không có dấu nháy/space) |
-| Dữ liệu mất sau redeploy | SQLite trên ổ tạm | Gắn disk + `DB_PATH=/data/...` |
+| Crash `EACCES ... mkdir '/data'` | Đặt `DB_PATH=/data/...` nhưng chưa gắn Disk | **Bỏ biến `DB_PATH`** (free tier) rồi redeploy. Bản mới đã tự lùi về thư mục ghi được nên không crash. |
+| Dữ liệu mất sau redeploy | SQLite trên ổ tạm | Gắn Disk (gói trả phí) + `DB_PATH=/data/...` |
 | Cron không bắn (free) | Service ngủ | Dùng gói không ngủ, ping giữ thức, hoặc Scheduled Job |
 | Lỗi build `better-sqlite3` | Thiếu build tool | Render/Railway Linux tự biên dịch được; thử lại build |
 

@@ -14,10 +14,10 @@ class MedAdaptDB {
    * @param {string} dbPath - Path to SQLite database file
    */
   constructor(dbPath) {
-    const dir = path.dirname(dbPath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
+    // Chọn đường dẫn GHI ĐƯỢC; nếu DB_PATH cấu hình sai (vd /data chưa gắn disk trên cloud)
+    // thì tự chuyển về thư mục project ./data, cuối cùng là thư mục tạm — KHÔNG crash.
+    dbPath = MedAdaptDB._ensureWritablePath(dbPath);
+    this.dbPath = dbPath;
 
     this.db = new Database(dbPath);
     this.db.pragma('journal_mode = WAL');
@@ -28,6 +28,31 @@ class MedAdaptDB {
     this.db.pragma('mmap_size = 268435456');
     this._stmtCache = new Map();
     this._initialize();
+  }
+
+  /** Trả về đường dẫn DB ghi được; thử dbPath -> ./data project -> os.tmpdir */
+  static _ensureWritablePath(dbPath) {
+    const os = require('os');
+    const canUse = (p) => {
+      try {
+        const dir = path.dirname(p);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        fs.accessSync(dir, fs.constants.W_OK);
+        return true;
+      } catch (e) { return false; }
+    };
+    if (canUse(dbPath)) return dbPath;
+
+    const projectDb = path.join(__dirname, '..', '..', 'data', 'medadapt.db');
+    if (projectDb !== dbPath && canUse(projectDb)) {
+      console.warn(`[DB] ⚠️  Không ghi được '${dbPath}'. Dùng '${projectDb}'. ` +
+        `(Muốn dữ liệu bền trên cloud: gắn Disk và trỏ DB_PATH vào mount path đó.)`);
+      return projectDb;
+    }
+
+    const tmpDb = path.join(os.tmpdir(), 'medadapt.db');
+    console.warn(`[DB] ⚠️  Không ghi được '${dbPath}'. Dùng thư mục tạm '${tmpDb}' (dữ liệu KHÔNG bền).`);
+    return tmpDb;
   }
 
   /** Initialize database with schema */
